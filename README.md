@@ -98,7 +98,7 @@ var items = new HtmlElement[]
 var list = Ul.Child(items.ToHtml());
 ```
 
-## Advanced Usage
+## Usage
 
 ### CSS Units
 

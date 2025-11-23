@@ -14,10 +14,15 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>1.0.0-beta-1</Version>
     <PackageProjectUrl>https://github.com/cheerio-pixel/CsharpTags</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="LanguageExt.Core" Version="5.0.0-beta-57" />
   </ItemGroup>
+
+    <ItemGroup>
+       <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
 </Project>
