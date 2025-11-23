@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Title>CsharpTags.Core</Title>
+    <Authors>Frairlyn Camilo Roque Suarez</Authors>
+    <Copyright>Copyright (c) Frairlyn Camilo Roque Suarez. All rights reserved.</Copyright>
+    <PackageTags>C#, </PackageTags>
+    <Summary>Easy and type safe html.</Summary>
+    <Description>Provides a way to construct html in a type-safe way.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.0.0-beta-1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LanguageExt.Core" Version="5.0.0-beta-57" />
+  </ItemGroup>
+
+</Project>
