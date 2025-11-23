@@ -13,6 +13,7 @@
     <Description>Provides a way to construct html in a type-safe way.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>1.0.0-beta-1</Version>
+    <PackageProjectUrl>https://github.com/cheerio-pixel/CsharpTags</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
