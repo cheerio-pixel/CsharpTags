@@ -68,6 +68,19 @@ namespace CsharpTags.Core.Types
         public string Render();
     }
 
+
+    /// <summary>
+    /// The attribute that renders to nothing.
+    /// </summary>
+    public record EmptyAttribute : IHtmlAttribute
+    {
+        /// <inheritdoc/>
+        public string Render()
+        {
+            return string.Empty;
+        }
+    }
+
     /// <summary>
     /// Represents a concrete HTML attribute instance with a key and value.
     /// Implements rendering logic through the associated HtmlKey's encoder.
@@ -111,6 +124,17 @@ namespace CsharpTags.Core.Types
     /// </remarks>
     public static partial class Prelude
     {
+        /// <summary>
+        /// Singleton for easy access of the Empty attribute.
+        /// </summary>
+        public static readonly IHtmlAttribute NoneAttr = new EmptyAttribute();
+
+        /// <summary>
+        /// Helper for rendering the attribute if <paramref name="flag" /> is true
+        /// </summary>
+        public static IHtmlAttribute RenderWhen(bool flag, IHtmlAttribute attr)
+            => flag ? attr : NoneAttr;
+
         #region Encoding Functions
 
         /// <summary>
