@@ -12,117 +12,148 @@ namespace CsharpTags.Htmx.Types
         /// </summary>
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-swap/"/> - HTMX hx-swap attribute
+        /// Visual reference for positioning:
+        /// <code>
+        /// &lt;!-- BeforeBegin --&gt;
+        /// [New Content]
+        /// &lt;div target&gt;           &lt;!-- Target Element --&gt;
+        ///     &lt;!-- AfterBegin --&gt;
+        ///     [New Content]
+        ///     Existing content...
+        ///     &lt;!-- BeforeEnd --&gt;
+        ///     [New Content]
+        /// &lt;/div&gt;
+        /// &lt;!-- AfterEnd --&gt;
+        /// [New Content]
+        /// </code>
         /// </remarks>
-        public enum SwapStrategy
+        public record SwapStrategy
         {
-            InnerHTML,
-            OuterHTML,
-            BeforeBegin,
-            AfterBegin,
-            BeforeEnd,
-            AfterEnd,
-            Delete,
-            None
-        }
-
-        /// <summary>
-        /// Specifies the swap modifier for hx-swap attribute
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-swap/"/> - HTMX hx-swap attribute modifiers
-        /// </remarks>
-        public enum SwapModifier
-        {
-            Transition,
-            Swap,
-            Settle,
-            IgnoreTitle,
-            Scroll,
-            Show,
-            FocusScroll
-        }
-
-        /// <summary>
-        /// Specifies the trigger modifier for hx-trigger attribute
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-trigger/"/> - HTMX hx-trigger attribute modifiers
-        /// </remarks>
-        public enum TriggerModifier
-        {
-            Once,
-            Changed,
-            Delay,
-            Throttle,
-            From,
-            Target,
-            Consume,
-            Queue
-        }
-
-        /// <summary>
-        /// Specifies the sync strategy for hx-sync attribute
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public enum SyncStrategy
-        {
-            Drop,
-            Abort,
-            Replace,
-            Queue,
-            Last
-        }
-
-        /// <summary>
-        /// Specifies the target selection strategy
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
-        /// </remarks>
-        public enum TargetStrategy
-        {
-            This,
-            Closest,
-            Find,
-            Next,
-            Previous
-        }
-
-        /// <summary>
-        /// Specifies the indicator selection strategy
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-indicator/"/> - HTMX hx-indicator attribute
-        /// </remarks>
-        public enum IndicatorStrategy
-        {
-            This,
-            Closest,
-            Find,
-            Next,
-            Previous
-        }
-
-        #endregion
-
-        #region Encoding Functions for Enums
-
-        /// <summary>
-        /// Encodes SwapStrategy enum with custom string values
-        /// </summary>
-        /// <param name="attr">The swap strategy attribute to encode</param>
-        /// <returns>hx-swap="value" with proper HTMX swap values</returns>
-        public static string SwapStrategyEncoder(HtmlAttribute<SwapStrategy> attr)
-        {
-            var value = attr.Value switch
+            private enum SwapStrategy_
             {
-                SwapStrategy.InnerHTML => "innerHTML",
-                SwapStrategy.OuterHTML => "outerHTML",
-                _ => attr.Value.ToString().ToLowerInvariant()
+                InnerHTML,
+                OuterHTML,
+                TextContent,
+                BeforeBegin,
+                AfterBegin,
+                BeforeEnd,
+                AfterEnd,
+                Delete,
+                None
+            }
+            private string Mod { get; set; } = string.Empty;
+            private SwapStrategy_ Strategy { get; set; }
+
+            /// <summary>
+            /// Apply a modifier to this strategy.
+            /// </summary>
+            public SwapStrategy Modify(string modifier) => this + modifier;
+
+            /// <summary>
+            /// Apply a modifier to this strategy.
+            /// </summary>
+            public static SwapStrategy operator +(SwapStrategy lhs, string rhs)
+                => lhs with
+                {
+                    Mod = rhs
+                };
+
+            /// <summary>
+            /// Encodes SwapStrategy enum with custom string values
+            /// </summary>
+            /// <param name="attr">The swap strategy attribute to encode</param>
+            /// <returns>hx-swap="value" with proper HTMX swap values</returns>
+            public static string SwapStrategyEncoder(HtmlAttribute<SwapStrategy> attr)
+            {
+                var value = attr.Value.Strategy switch
+                {
+                    SwapStrategy_.InnerHTML => "innerHTML",
+                    SwapStrategy_.OuterHTML => "outerHTML",
+                    SwapStrategy_.TextContent => "textContent",
+                    _ => attr.Value.Strategy.ToString().ToLowerInvariant()
+                };
+                return $"{attr.Key.Name}=\"{value}" + attr.Value.Mod == string.Empty ? string.Empty : " " + attr.Value.Mod;
+            }
+
+            /// <summary>
+            /// Replace the inner HTML of the target element with the response content.
+            /// The target element itself remains unchanged, only its children are replaced.
+            /// </summary>
+            public readonly static SwapStrategy InnerHTML = new()
+            {
+                Strategy = SwapStrategy_.InnerHTML
             };
-            return $"{attr.Key.Name}=\"{value}\"";
+
+            /// <summary>
+            /// Replace the entire target element with the response content.
+            /// The target element is completely removed and replaced by the new content.
+            /// </summary>
+            public static SwapStrategy OuterHTML { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.OuterHTML
+            };
+
+            /// <summary>
+            /// Replace the text content of the target element without parsing the response as HTML.
+            /// The response content is treated as plain text and any HTML tags will be escaped.
+            /// </summary>
+            public static SwapStrategy TextContent { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.TextContent
+            };
+
+            /// <summary>
+            /// Insert the response content before the target element.
+            /// The new content becomes a sibling that appears immediately before the target element.
+            /// </summary>
+            public static SwapStrategy BeforeBegin { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.BeforeBegin
+            };
+
+            /// <summary>
+            /// Insert the response content before the first child of the target element.
+            /// The new content becomes the first child inside the target element.
+            /// </summary>
+            public static SwapStrategy AfterBegin { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.AfterBegin
+            };
+
+            /// <summary>
+            /// Insert the response content after the last child of the target element.
+            /// The new content becomes the last child inside the target element.
+            /// </summary>
+            public static SwapStrategy BeforeEnd { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.BeforeEnd
+            };
+
+            /// <summary>
+            /// Insert the response content after the target element
+            /// </summary>
+            public static SwapStrategy AfterEnd { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.AfterEnd
+            };
+
+            /// <summary>
+            /// Delete the target element regardless of the response content.
+            /// The target element is removed from the DOM, and the response content is ignored.
+            /// </summary>
+            public static SwapStrategy Delete { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.Delete
+            };
+
+            /// <summary>
+            /// Does not append content from the response to the target element.
+            /// The target element remains unchanged, but out-of-band items in the response will still be processed.
+            /// </summary>
+            public static SwapStrategy None { get; } = new SwapStrategy
+            {
+                Strategy = SwapStrategy_.None
+            };
         }
 
         #endregion
@@ -214,16 +245,75 @@ namespace CsharpTags.Htmx.Types
         };
 
         /// <summary>
-        /// Specifies the target element using a strategy
+        /// Specifies the target element to swap the response into.
+        /// Indicates that this element is the target.
         /// </summary>
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public readonly static HtmlKey<TargetStrategy> HxTargetStrategy = new()
-        {
-            Name = "hx-target",
-            Encode = EnumAsKebabCaseEncoder
-        };
+        public readonly static HtmlAttribute<string> HxTargetThis = HxTarget << "this";
+
+        /// <summary>
+        /// Specifies the target element to swap the response into.
+        /// Will find the closest ancestor element or itself,
+        /// that matches the given CSS selector (e.g. closest
+        /// tr will target the closest table row to the element).
+        /// Indicates that this element is the target.
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxTargetClosest(string cssSelector) => HxTarget << "closest " + cssSelector;
+
+        /// <summary>
+        /// Specifies the target element to swap the response into.
+        /// Will find the first child descendant element that
+        /// matches the given CSS selector
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxTargetFind(string cssSelector) => HxTarget << "find " + cssSelector;
+
+        /// <summary>
+        /// Specifies the target element to swap the response into.
+        /// Resolves to element.nextElementSibling
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
+        /// </remarks>
+        public readonly static HtmlAttribute<string> HxTargetNext_ = HxTarget << "next";
+
+        /// <summary>
+        /// Specifies the target element to swap the response into.
+        /// Will scan the DOM forward for the first element that
+        /// matches the given CSS selector. (e.g. next .error will
+        /// target the closest following sibling element with error class)
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxTargetNext(string cssSelector) => HxTarget << "next " + cssSelector;
+
+        /// <summary>
+        /// Specifies the target element to swap the response into.
+        /// Resolves to element.previousElementSibling
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
+        /// </remarks>
+        public readonly static HtmlAttribute<string> HxTargetPrevious_ = HxTarget << "previous";
+
+        /// <summary>
+        /// Specifies the target element to swap the response into.
+        /// Will scan the DOM backwards for the first element that
+        /// matches the given CSS selector. (e.g. previous .error
+        /// will target the closest previous sibling with error class)
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxTargetPrevious(string cssSelector) => HxTarget << "previous " + cssSelector;
 
         /// <summary>
         /// Specifies how the response will be swapped in relative to the target
@@ -231,22 +321,10 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-swap/"/> - HTMX hx-swap attribute
         /// </remarks>
-        public readonly static HtmlKey<string> HxSwap = new()
+        public readonly static HtmlKey<SwapStrategy> HxSwap = new()
         {
             Name = "hx-swap",
-            Encode = StringAsIsEncoder
-        };
-
-        /// <summary>
-        /// Specifies how the response will be swapped in using a SwapStrategy enum
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-swap/"/> - HTMX hx-swap attribute
-        /// </remarks>
-        public readonly static HtmlKey<SwapStrategy> HxSwapStrategy = new()
-        {
-            Name = "hx-swap",
-            Encode = SwapStrategyEncoder
+            Encode = SwapStrategy.SwapStrategyEncoder
         };
 
         /// <summary>
@@ -326,28 +404,87 @@ namespace CsharpTags.Htmx.Types
         };
 
         /// <summary>
-        /// Controls how requests are queued when they are issued
+        /// The hx-sync attribute consists of a CSS
+        /// selector to indicate the element to
+        /// synchronize on, followed optionally by
+        /// a colon and then by an optional syncing
+        /// strategy.
         /// </summary>
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
         /// </remarks>
-        public readonly static HtmlKey<string> HxSync = new()
+        public readonly static HtmlKey<string> HxSync_ = new()
         {
             Name = "hx-sync",
             Encode = StringAsIsEncoder
         };
 
         /// <summary>
-        /// Controls how requests are queued using a SyncStrategy enum
+        /// Controls how requests are queued when they are issued.
+        /// Drop (ignore) this request if an existing request is in flight (the default).
         /// </summary>
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
         /// </remarks>
-        public readonly static HtmlKey<SyncStrategy> HxSyncStrategy = new()
-        {
-            Name = "hx-sync",
-            Encode = EnumAsLowerCaseEncoder
-        };
+        public static HtmlAttribute<string> HxSyncDrop(string cssSelector) => HxSync_ << cssSelector + ":drop";
+
+        /// <summary>
+        /// Controls how requests are queued when they are issued.
+        /// Drop (ignore) this request if an existing request is
+        /// in flight, and, if that is not the case, abort this
+        /// request if another request occurs while it is still
+        /// in flight
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxSyncAbort(string cssSelector) => HxSync_ << cssSelector + ":abort";
+
+        /// <summary>
+        /// Controls how requests are queued when they are issued.
+        /// Abort the current request, if any, and replace it with
+        /// this request.
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxSyncReplace(string cssSelector) => HxSync_ << cssSelector + ":replace";
+
+        /// <summary>
+        /// Controls how requests are queued when they are issued.
+        /// Place this request in the request queue associated with the given element
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxSyncQueue(string cssSelector) => HxSync_ << cssSelector + ":queue";
+
+        /// <summary>
+        /// Controls how requests are queued when they are issued.
+        /// Place this request first in the request queue associated with the given element
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxSyncQueueFirst(string cssSelector) => HxSync_ << cssSelector + ":queue first";
+
+        /// <summary>
+        /// Controls how requests are queued when they are issued.
+        /// Place this request last in the request queue associated with the given element
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxSyncQueueLast(string cssSelector) => HxSync_ << cssSelector + ":queue last";
+
+        /// <summary>
+        /// Controls how requests are queued when they are issued.
+        /// Place all requests in the request queue associated with the given element
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
+        /// </remarks>
+        public static HtmlAttribute<string> HxSyncQueueAll(string cssSelector) => HxSync_ << cssSelector + ":queue all";
 
         /// <summary>
         /// Disables htmx processing for the given node and any children nodes
@@ -395,18 +532,6 @@ namespace CsharpTags.Htmx.Types
         {
             Name = "hx-indicator",
             Encode = StringAsIsEncoder
-        };
-
-        /// <summary>
-        /// The element to put the htmx-request class on using a strategy
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-indicator/"/> - HTMX hx-indicator attribute
-        /// </remarks>
-        public readonly static HtmlKey<IndicatorStrategy> HxIndicatorStrategy = new()
-        {
-            Name = "hx-indicator",
-            Encode = EnumAsKebabCaseEncoder
         };
 
         /// <summary>
