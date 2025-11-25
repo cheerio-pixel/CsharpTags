@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -11,7 +11,7 @@
     <Summary>Interop for AspNet Core and MVC</Summary>
     <Description>Provides methods for converting HtmlContent into AspNet Core and MVC types</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.0-beta-1</Version>
+    <Version>1.0.0-beta-2</Version>
     <PackageProjectUrl>https://github.com/cheerio-pixel/CsharpTags</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -19,5 +19,13 @@
   <ItemGroup>
      <ProjectReference Include="..\CsharpTags.Core\CsharpTags.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+    <ItemGroup>
+       <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
 </Project>
