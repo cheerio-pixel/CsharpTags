@@ -200,6 +200,38 @@ namespace CsharpTags.Core.Types
         public static string BooleanAsOnOffStringEncoder(HtmlAttribute<bool> attr)
             => $"{attr.Key.Name}=\"{(attr.Value ? "on" : "off")}\"";
 
+        /// <summary>
+        /// Encodes enum values by converting to lowercase string
+        /// </summary>
+        /// <typeparam name="T">The enum type</typeparam>
+        /// <param name="attr">The enum attribute to encode</param>
+        /// <returns>name="value" with value in lowercase</returns>
+        public static string EnumAsIsEncoder<T>(HtmlAttribute<T> attr) where T : Enum
+            => $"{attr.Key.Name}=\"{attr.Value}\"";
+
+        /// <summary>
+        /// Encodes enum values by converting to lowercase string
+        /// </summary>
+        /// <typeparam name="T">The enum type</typeparam>
+        /// <param name="attr">The enum attribute to encode</param>
+        /// <returns>name="value" with value in lowercase</returns>
+        public static string EnumAsLowerCaseEncoder<T>(HtmlAttribute<T> attr) where T : Enum
+            => $"{attr.Key.Name}=\"{attr.Value.ToString().ToLowerInvariant()}\"";
+
+        /// <summary>
+        /// Encodes enum values by converting to kebab-case string
+        /// </summary>
+        /// <typeparam name="T">The enum type</typeparam>
+        /// <param name="attr">The enum attribute to encode</param>
+        /// <returns>name="value" with value in kebab-case</returns>
+        public static string EnumAsKebabCaseEncoder<T>(HtmlAttribute<T> attr) where T : Enum
+        {
+            var value = attr.Value.ToString();
+            var kebabCase = System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1-$2").ToLowerInvariant();
+            return $"{attr.Key.Name}=\"{kebabCase}\"";
+        }
+
+
         #endregion
 
         #region Global Attributes
