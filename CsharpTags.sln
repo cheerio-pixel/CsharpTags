@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsharpTags.Core.Test", "Csh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsharpTags.AspNetCore", "CsharpTags.AspNetCore\CsharpTags.AspNetCore.csproj", "{42B8D86C-E17A-4062-9A1E-3B687C7206E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsharpTags.Htmx", "CsharpTags.Htmx\CsharpTags.Htmx.csproj", "{B46D605B-B300-4D63-8672-FE59072D4882}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{42B8D86C-E17A-4062-9A1E-3B687C7206E0}.Release|x64.Build.0 = Release|Any CPU
 		{42B8D86C-E17A-4062-9A1E-3B687C7206E0}.Release|x86.ActiveCfg = Release|Any CPU
 		{42B8D86C-E17A-4062-9A1E-3B687C7206E0}.Release|x86.Build.0 = Release|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Debug|x64.Build.0 = Debug|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Debug|x86.Build.0 = Debug|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Release|x64.ActiveCfg = Release|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Release|x64.Build.0 = Release|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Release|x86.ActiveCfg = Release|Any CPU
+		{B46D605B-B300-4D63-8672-FE59072D4882}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
