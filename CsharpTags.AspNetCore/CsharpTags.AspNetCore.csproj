@@ -11,9 +11,10 @@
     <Summary>Interop for AspNet Core and MVC</Summary>
     <Description>Provides methods for converting HtmlContent into AspNet Core and MVC types</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.0-beta-2</Version>
+    <Version>1.0.0-beta-3</Version>
     <PackageProjectUrl>https://github.com/cheerio-pixel/CsharpTags</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
