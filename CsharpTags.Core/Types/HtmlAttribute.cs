@@ -37,15 +37,15 @@ namespace CsharpTags.Core.Types
             => this << right;
 
         /// <summary>
-        /// Operator for fluent attribute creation: HtmlKey << value
+        /// Operator for fluent attribute creation: HtmlKey &lt;&lt; value
         /// </summary>
         /// <param name="left">The HtmlKey instance</param>
         /// <param name="right">The value to associate with the attribute</param>
         /// <returns>A new HtmlAttribute instance</returns>
         /// <example>
         /// <code>
-        /// var hrefAttr = Prelude.Href << "/page.html";
-        /// var disabledAttr = Prelude.Disabled_ << true;
+        /// var hrefAttr = Prelude.Href &lt;&lt; "/page.html";
+        /// var disabledAttr = Prelude.Disabled_ &lt;&lt; true;
         /// </code>
         /// </example>
         public static HtmlAttribute<T> operator <<(HtmlKey<T> left, T right)
@@ -107,7 +107,7 @@ namespace CsharpTags.Core.Types
         /// <returns>The HTML-encoded attribute string</returns>
         /// <example>
         /// <code>
-        /// var attr = Prelude.Class << "container";
+        /// var attr = Prelude.Class &lt;&lt; "container";
         /// Console.WriteLine(attr.Render()); // class="container"
         /// </code>
         /// </example>
