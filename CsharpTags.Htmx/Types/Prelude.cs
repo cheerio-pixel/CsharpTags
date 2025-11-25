@@ -8,6 +8,132 @@ namespace CsharpTags.Htmx.Types
         #region HTMX Enums
 
         /// <summary>
+        /// Specifies how htmx will synchronize DOM updates between different elements
+        /// </summary>
+        /// <remarks>
+        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
+        /// The hx-sync attribute allows you to coordinate AJAX requests between different elements,
+        /// ensuring that only one request happens at a time or that requests are queued/aborted appropriately.
+        /// </remarks>
+        public class SyncStrategy
+        {
+            internal enum SyncStrategy_
+            {
+                Drop,
+                Abort,
+                Replace,
+                Queue,
+                QueueFirst,
+                QueueLast,
+                QueueAll
+            }
+
+            private string Selector { get; set; } = string.Empty;
+            private SyncStrategy_ Strategy { get; set; }
+
+            /// <summary>
+            /// Represents an intermediate sync strategy that requires a CSS selector to complete.
+            /// Use the Modify method or + operator to provide a selector and create a SyncStrategy.
+            /// </summary>
+            public struct SyncStrategyBuilder
+            {
+                private SyncStrategy_ Strategy { get; set; }
+
+                internal SyncStrategyBuilder(SyncStrategy_ strategy)
+                {
+                    Strategy = strategy;
+                }
+
+                /// <summary>
+                /// Apply a CSS selector to complete the sync strategy.
+                /// </summary>
+                /// <param name="selector">CSS selector specifying which element to synchronize with</param>
+                /// <returns>A complete SyncStrategy</returns>
+                public SyncStrategy Modify(string selector) => this + selector;
+
+                /// <summary>
+                /// Apply a CSS selector to complete the sync strategy using the + operator.
+                /// </summary>
+                public static SyncStrategy operator +(SyncStrategyBuilder builder, string selector)
+                    => new()
+                    {
+                        Selector = selector,
+                        Strategy = builder.Strategy
+                    };
+            }
+
+            /// <summary>
+            /// Encodes SyncStrategy with CSS selector and sync strategy values
+            /// </summary>
+            /// <param name="attr">The sync strategy attribute to encode</param>
+            /// <returns>hx-sync="selector:strategy" with proper HTMX sync values</returns>
+            public static string SyncStrategyEncoder(HtmlAttribute<SyncStrategy> attr)
+            {
+                var strat = attr.Value.Strategy switch
+                {
+                    SyncStrategy_.QueueAll => "queue all",
+                    SyncStrategy_.QueueFirst => "queue first",
+                    SyncStrategy_.QueueLast => "queue last",
+                    _ => attr.Value.Strategy.ToString().ToLowerInvariant()
+                };
+                var value = $"{attr.Value.Selector}:{strat}";
+                return $"{attr.Key.Name}=\"{value}\"";
+            }
+
+            /// <summary>
+            /// Drop the new request if a request is already in progress on the target element.
+            /// The new request is simply ignored and discarded.
+            /// </summary>
+            public static SyncStrategyBuilder Drop { get; } = new(SyncStrategy_.Drop);
+
+            /// <summary>
+            /// Abort the current request in progress and replace it with the new request.
+            /// The ongoing request is cancelled and the new request takes its place.
+            /// </summary>
+            public static SyncStrategyBuilder Abort { get; } = new(SyncStrategy_.Abort);
+
+            /// <summary>
+            /// Replace the current request in the queue with the new request.
+            /// If a request is queued, it will be replaced by this new request.
+            /// </summary>
+            public static SyncStrategyBuilder Replace { get; } = new(SyncStrategy_.Replace);
+
+            /// <summary>
+            /// Queue the new request to run after the current request completes.
+            /// Requests are executed in the order they are received.
+            /// </summary>
+            public static SyncStrategyBuilder Queue { get; } = new(SyncStrategy_.Queue);
+
+            /// <summary>
+            /// Queue the new request to run before any other queued requests.
+            /// The new request will be executed immediately after the current request completes, before any other queued requests.
+            /// </summary>
+            /// <remarks>
+            /// This strategy adds the new request to the front of the queue, giving it priority over other waiting requests.
+            /// </remarks>
+            public static SyncStrategyBuilder QueueFirst { get; } = new(SyncStrategy_.QueueFirst);
+
+            /// <summary>
+            /// Queue the new request to run after all other queued requests.
+            /// The new request will be executed after all currently queued requests have completed.
+            /// </summary>
+            /// <remarks>
+            /// This strategy adds the new request to the end of the queue, following a first-in-first-out pattern.
+            /// </remarks>
+            public static SyncStrategyBuilder QueueLast { get; } = new(SyncStrategy_.QueueAll);
+
+            /// <summary>
+            /// Queue all requests and execute them in sequence.
+            /// Every request will be queued and executed one after another, regardless of how many are made.
+            /// </summary>
+            /// <remarks>
+            /// This strategy ensures all requests are processed in the order they were made, without dropping any requests.
+            /// Unlike other queue strategies, this will not limit the number of queued requests.
+            /// </remarks>
+            public static SyncStrategyBuilder QueueAll { get; } = new(SyncStrategy_.QueueAll);
+        }
+
+        /// <summary>
         /// Specifies how the response will be swapped in relative to the target
         /// </summary>
         /// <remarks>
@@ -72,7 +198,9 @@ namespace CsharpTags.Htmx.Types
                     SwapStrategy_.TextContent => "textContent",
                     _ => attr.Value.Strategy.ToString().ToLowerInvariant()
                 };
-                return $"{attr.Key.Name}=\"{value}" + attr.Value.Mod == string.Empty ? string.Empty : " " + attr.Value.Mod;
+                return $"{attr.Key.Name}=\"{value}" + (
+                        attr.Value.Mod == string.Empty ? string.Empty : " " + attr.Value.Mod
+                        ) + "\"";
             }
 
             /// <summary>
@@ -88,7 +216,7 @@ namespace CsharpTags.Htmx.Types
             /// Replace the entire target element with the response content.
             /// The target element is completely removed and replaced by the new content.
             /// </summary>
-            public static SwapStrategy OuterHTML { get; } = new SwapStrategy
+            public readonly static SwapStrategy OuterHTML = new SwapStrategy
             {
                 Strategy = SwapStrategy_.OuterHTML
             };
@@ -97,7 +225,7 @@ namespace CsharpTags.Htmx.Types
             /// Replace the text content of the target element without parsing the response as HTML.
             /// The response content is treated as plain text and any HTML tags will be escaped.
             /// </summary>
-            public static SwapStrategy TextContent { get; } = new SwapStrategy
+            public readonly static SwapStrategy TextContent = new SwapStrategy
             {
                 Strategy = SwapStrategy_.TextContent
             };
@@ -106,7 +234,7 @@ namespace CsharpTags.Htmx.Types
             /// Insert the response content before the target element.
             /// The new content becomes a sibling that appears immediately before the target element.
             /// </summary>
-            public static SwapStrategy BeforeBegin { get; } = new SwapStrategy
+            public readonly static SwapStrategy BeforeBegin  = new SwapStrategy
             {
                 Strategy = SwapStrategy_.BeforeBegin
             };
@@ -115,7 +243,7 @@ namespace CsharpTags.Htmx.Types
             /// Insert the response content before the first child of the target element.
             /// The new content becomes the first child inside the target element.
             /// </summary>
-            public static SwapStrategy AfterBegin { get; } = new SwapStrategy
+            public readonly static SwapStrategy AfterBegin = new SwapStrategy
             {
                 Strategy = SwapStrategy_.AfterBegin
             };
@@ -124,7 +252,7 @@ namespace CsharpTags.Htmx.Types
             /// Insert the response content after the last child of the target element.
             /// The new content becomes the last child inside the target element.
             /// </summary>
-            public static SwapStrategy BeforeEnd { get; } = new SwapStrategy
+            public readonly static SwapStrategy BeforeEnd = new SwapStrategy
             {
                 Strategy = SwapStrategy_.BeforeEnd
             };
@@ -132,7 +260,7 @@ namespace CsharpTags.Htmx.Types
             /// <summary>
             /// Insert the response content after the target element
             /// </summary>
-            public static SwapStrategy AfterEnd { get; } = new SwapStrategy
+            public readonly static SwapStrategy AfterEnd = new SwapStrategy
             {
                 Strategy = SwapStrategy_.AfterEnd
             };
@@ -141,7 +269,7 @@ namespace CsharpTags.Htmx.Types
             /// Delete the target element regardless of the response content.
             /// The target element is removed from the DOM, and the response content is ignored.
             /// </summary>
-            public static SwapStrategy Delete { get; } = new SwapStrategy
+            public readonly static SwapStrategy Delete = new SwapStrategy
             {
                 Strategy = SwapStrategy_.Delete
             };
@@ -150,7 +278,7 @@ namespace CsharpTags.Htmx.Types
             /// Does not append content from the response to the target element.
             /// The target element remains unchanged, but out-of-band items in the response will still be processed.
             /// </summary>
-            public static SwapStrategy None { get; } = new SwapStrategy
+            public readonly static SwapStrategy None = new SwapStrategy
             {
                 Strategy = SwapStrategy_.None
             };
@@ -413,78 +541,11 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
         /// </remarks>
-        public readonly static HtmlKey<string> HxSync_ = new()
+        public readonly static HtmlKey<SyncStrategy> HxSync = new()
         {
             Name = "hx-sync",
-            Encode = StringAsIsEncoder
+            Encode = SyncStrategy.SyncStrategyEncoder
         };
-
-        /// <summary>
-        /// Controls how requests are queued when they are issued.
-        /// Drop (ignore) this request if an existing request is in flight (the default).
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public static HtmlAttribute<string> HxSyncDrop(string cssSelector) => HxSync_ << cssSelector + ":drop";
-
-        /// <summary>
-        /// Controls how requests are queued when they are issued.
-        /// Drop (ignore) this request if an existing request is
-        /// in flight, and, if that is not the case, abort this
-        /// request if another request occurs while it is still
-        /// in flight
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public static HtmlAttribute<string> HxSyncAbort(string cssSelector) => HxSync_ << cssSelector + ":abort";
-
-        /// <summary>
-        /// Controls how requests are queued when they are issued.
-        /// Abort the current request, if any, and replace it with
-        /// this request.
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public static HtmlAttribute<string> HxSyncReplace(string cssSelector) => HxSync_ << cssSelector + ":replace";
-
-        /// <summary>
-        /// Controls how requests are queued when they are issued.
-        /// Place this request in the request queue associated with the given element
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public static HtmlAttribute<string> HxSyncQueue(string cssSelector) => HxSync_ << cssSelector + ":queue";
-
-        /// <summary>
-        /// Controls how requests are queued when they are issued.
-        /// Place this request first in the request queue associated with the given element
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public static HtmlAttribute<string> HxSyncQueueFirst(string cssSelector) => HxSync_ << cssSelector + ":queue first";
-
-        /// <summary>
-        /// Controls how requests are queued when they are issued.
-        /// Place this request last in the request queue associated with the given element
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public static HtmlAttribute<string> HxSyncQueueLast(string cssSelector) => HxSync_ << cssSelector + ":queue last";
-
-        /// <summary>
-        /// Controls how requests are queued when they are issued.
-        /// Place all requests in the request queue associated with the given element
-        /// </summary>
-        /// <remarks>
-        /// Reference: <see href="https://htmx.org/attributes/hx-sync/"/> - HTMX hx-sync attribute
-        /// </remarks>
-        public static HtmlAttribute<string> HxSyncQueueAll(string cssSelector) => HxSync_ << cssSelector + ":queue all";
 
         /// <summary>
         /// Disables htmx processing for the given node and any children nodes
