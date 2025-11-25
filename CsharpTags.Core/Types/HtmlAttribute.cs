@@ -388,7 +388,7 @@ namespace CsharpTags.Core.Types
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id"/> - MDN id attribute
         /// </remarks>
-        public readonly static HtmlKey<string> Id = new()
+        public readonly static HtmlKey<string> Id_ = new()
         {
             Name = "id",
             Encode = StringAsIsEncoder
