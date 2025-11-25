@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>CsharpTags.ApsNetCore</Title>
+    <Authors>Frairlyn Camilo Roque Suarez</Authors>
+    <Copyright>Copyright (c) Frairlyn Camilo Roque Suarez. All rights reserved.</Copyright>
+    <PackageTags>C#, HTML</PackageTags>
+    <Summary>Interop for AspNet Core and MVC</Summary>
+    <Description>Provides methods for converting HtmlContent into AspNet Core and MVC types</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.0.0-beta-1</Version>
+    <PackageProjectUrl>https://github.com/cheerio-pixel/CsharpTags</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+     <ProjectReference Include="..\CsharpTags.Core\CsharpTags.Core.csproj" />
+  </ItemGroup>
+
+</Project>
