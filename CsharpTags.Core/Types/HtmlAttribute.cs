@@ -21,6 +21,29 @@ namespace CsharpTags.Core.Types
         /// The encoding function that converts an attribute value to its HTML string representation
         /// </summary>
         public required Func<HtmlAttribute<T>, string> Encode { get; init; }
+        /// <summary>
+        /// Creates a new HtmlKey with a different value type by providing a new encoder function.
+        /// This allows transforming an attribute key to work with different data types while preserving the attribute name.
+        /// </summary>
+        /// <typeparam name="G">The target value type for the new HtmlKey</typeparam>
+        /// <param name="NewEncoder">The encoder function that converts HtmlAttribute&lt;G&gt; to string</param>
+        /// <returns>A new HtmlKey instance with the same name but different value type and encoder</returns>
+        /// <example>
+        /// <code>
+        /// // Create a key for integer values
+        /// var intKey = Prelude.Class.Map&lt;int&gt;((HtmlAttribute&lt;int&gt; attr) => $"{attr.Name}=\"{attr.Value}\"");
+        ///
+        /// // Transform a string-based key to work with custom objects
+        /// var customKey = Prelude.Data.Map&lt;CustomObject&gt;((HtmlAttribute&lt;CustomObject&gt; attr) =>
+        ///     $"{attr.Name}=\"{attr.Value.ToCustomFormat()}\"");
+        /// </code>
+        /// </example>
+        public HtmlKey<G> Map<G>(Func<HtmlAttribute<G>, string> NewEncoder)
+            => new()
+            {
+                Encode = NewEncoder,
+                Name = Name
+            };
 
         /// <summary>
         /// Binds a value to this attribute key, creating a concrete HtmlAttribute instance
@@ -255,6 +278,171 @@ namespace CsharpTags.Core.Types
             return $"{attr.Key.Name}=\"{kebabCase}\"";
         }
 
+        /// <summary>
+        /// Sum up two encoders to make one key
+        /// </summary>
+        public static HtmlKey<Either<A, B>>
+            EitherKey<A, B>(
+                    string key,
+                    Func<HtmlAttribute<A>, string> left,
+                    Func<HtmlAttribute<B>, string> right)
+        {
+            var leftKey = new HtmlKey<A>()
+            {
+                Name = key,
+                Encode = left
+            };
+            var rightKey = new HtmlKey<B>()
+            {
+                Name = key,
+                Encode = right
+            };
+
+            return new()
+            {
+                Name = key,
+                Encode = attr =>
+                {
+                    return attr.Value.Match(
+                            Left: a => leftKey.Bind(a).Render(),
+                            Right: b => rightKey.Bind(b).Render()
+                            );
+                }
+            };
+        }
+
+        /// <summary>
+        /// Represents the type attribute for HTML input elements.
+        /// Specifies the behavior and appearance of an input field.
+        /// </summary>
+        /// <remarks>
+        /// Each enum value corresponds to a valid HTML input type as defined in the HTML specification.
+        /// These types determine how the input field behaves and what kind of data it accepts.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// // Create a password input
+        /// var passwordInput = Input.Attr(Tpe &lt;&lt; InputType.Password);
+        ///
+        /// // Create a date picker
+        /// var dateInput = Input.Attr(Tpe &lt;&lt; InputType.Date);
+        ///
+        /// // Create a submit button
+        /// var submitButton = Input.Attr(Tpe I&lt;&lt; nputType.Submit);
+        /// </code>
+        /// </example>
+        public enum InputType
+        {
+            /// <summary>
+            /// A clickable button with no default behavior
+            /// </summary>
+            Button,
+
+            /// <summary>
+            /// A checkbox allowing single values to be selected/deselected
+            /// </summary>
+            Checkbox,
+
+            /// <summary>
+            /// A color picker interface
+            /// </summary>
+            Color,
+
+            /// <summary>
+            /// A date picker (year, month, day only, no time)
+            /// </summary>
+            Date,
+
+            /// <summary>
+            /// A date and time picker (no timezone)
+            /// </summary>
+            DatetimeLocal,
+
+            /// <summary>
+            /// An input field for email addresses with validation
+            /// </summary>
+            Email,
+
+            /// <summary>
+            /// A file upload control with a file selection dialog
+            /// </summary>
+            File,
+
+            /// <summary>
+            /// A hidden field not displayed to the user but sent with form submission
+            /// </summary>
+            Hidden,
+
+            /// <summary>
+            /// An image used as a graphical submit button
+            /// </summary>
+            Image,
+
+            /// <summary>
+            /// A month and year picker (no timezone)
+            /// </summary>
+            Month,
+
+            /// <summary>
+            /// A numeric input field with spin controls
+            /// </summary>
+            Number,
+
+            /// <summary>
+            /// A password field with masked input
+            /// </summary>
+            Password,
+
+            /// <summary>
+            /// A radio button allowing single selection from multiple options
+            /// </summary>
+            Radio,
+
+            /// <summary>
+            /// A slider control for selecting a number from a range
+            /// </summary>
+            Range,
+
+            /// <summary>
+            /// A button that resets form contents to their default values
+            /// </summary>
+            Reset,
+
+            /// <summary>
+            /// A search field with a format that may differ from regular text fields
+            /// </summary>
+            Search,
+
+            /// <summary>
+            /// A button that submits the form
+            /// </summary>
+            Submit,
+
+            /// <summary>
+            /// An input field for telephone numbers
+            /// </summary>
+            Tel,
+
+            /// <summary>
+            /// A single-line text field (default input type)
+            /// </summary>
+            Text,
+
+            /// <summary>
+            /// A time picker with no timezone
+            /// </summary>
+            Time,
+
+            /// <summary>
+            /// An input field for URL addresses with validation
+            /// </summary>
+            Url,
+
+            /// <summary>
+            /// A week and year picker (no timezone)
+            /// </summary>
+            Week
+        }
 
         #endregion
 
@@ -391,34 +579,32 @@ namespace CsharpTags.Core.Types
         };
 
         /// <summary>
-        /// Specifies the type of element (alias for Type_)
-        /// </summary>
-        public readonly static HtmlKey<string> Typ = new()
-        {
-            Name = "type",
-            Encode = StringAsIsEncoder
-        };
-
-        /// <summary>
-        /// Specifies the type of element (alias for Type_)
-        /// </summary>
-        public readonly static HtmlKey<string> Tpe = new()
-        {
-            Name = "type",
-            Encode = StringAsIsEncoder
-        };
-
-        /// <summary>
-        /// Specifies the type of element
+        /// Specifies the type of element, can be assigned
+        /// either as the enum or a string, auto-casts to
+        /// Either so no need to handle it yourself
         /// </summary>
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type"/> - MDN type attribute
         /// </remarks>
-        public readonly static HtmlKey<string> Type_ = new()
-        {
-            Name = "type",
-            Encode = StringAsIsEncoder
-        };
+        public readonly static HtmlKey<Either<InputType, string>> Type_ = EitherKey<InputType, string>(
+                "type",
+                EnumAsKebabCaseEncoder,
+                StringAsIsEncoder
+                );
+
+        /// <summary>
+        /// Specifies the type of element (alias for Type_), can be assigned
+        /// either as the enum or a string, auto-casts to
+        /// Either so no need to handle it yourself
+        /// </summary>
+        public readonly static HtmlKey<Either<InputType, string>> Typ = Type_;
+
+        /// <summary>
+        /// Specifies the type of element (alias for Type_) can be assigned
+        /// either as the enum or a string, auto-casts to
+        /// Either so no need to handle it yourself
+        /// </summary>
+        public readonly static HtmlKey<Either<InputType, string>> Tpe = Type_;
 
         /// <summary>
         /// Specifies whether the text of an element can be selected
