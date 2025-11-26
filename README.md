@@ -46,6 +46,30 @@ var html = Html.Child(
 string result = html.Render();
 ```
 
+## Asp Net Core
+
+If you install 
+
+```csharp
+<PackageReference Include="CsharpTags.AspNetCore" Version="1.0.0-beta-3" />
+```
+And add the import
+```csharp
+using CsharpTags.AspNetCore;
+```
+You will have access to the extension methods .ToActionResult() and .ToResult()
+
+If you use minimal apis you can do something similar to that of Carter.
+
+## Carter
+
+Having the CsharpTags.AspNetCore package you can register the filter Carter like this:
+```csharp
+var group = app.MapGroup(string.Empty).AddEndpointFilter<HtmlElementEndpointFilter>();
+group.MapCarter();
+```
+    
+
 ## Core Concepts
 
 ### HTML Elements

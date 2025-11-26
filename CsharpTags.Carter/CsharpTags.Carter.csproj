@@ -1,28 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Title>CsharpTags.Htmx</Title>
-    <Authors>Frairlyn Camilo Roque Suarez</Authors>
-    <Copyright>Copyright (c) Frairlyn Camilo Roque Suarez. All rights reserved.</Copyright>
-    <PackageTags>C#, HTML</PackageTags>
-    <Summary>Extension with htmx attrbutes</Summary>
-    <Description>Provides all the keys used by base htmx v1</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>CsharpTags.Carter</PackageId>
     <Version>1.0.0-beta-3</Version>
+    <Authors>Frairlyn Camilo Roque Suarez</Authors>
+    <Description>Seamless integration between CsharpTags and Carter for ASP.NET Core Minimal APIs</Description>
+    <PackageTags>csharp-tags;carter;html;minimal-apis;aspnetcore</PackageTags>
+    <Copyright>Copyright (c) Frairlyn Camilo Roque Suarez. All rights reserved.</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cheerio-pixel/CsharpTags</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Carter" Version="8.0.0" />
+    <PackageReference Include="CsharpTags.Core" Version="1.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
      <ProjectReference Include="..\CsharpTags.Core\CsharpTags.Core.csproj" />
+     <ProjectReference Include="..\CsharpTags.AspNetCore\CsharpTags.AspNetCore.csproj" />
   </ItemGroup>
 
     <ItemGroup>
-       <None Include="README.md" Pack="true" PackagePath="\"/>
+       <None Include="..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>
