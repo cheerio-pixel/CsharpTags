@@ -15,6 +15,11 @@ namespace CsharpTags.Core.Types
 
     public static partial class Prelude
     {
+        /// <summary>
+        /// Constructor of an Array of elements.
+        /// </summary>
+        public static HtmlElement HList(params ReadOnlySpan<HtmlElement> element)
+            => Seq( element).ToHtml();
         public static HtmlElement ToHtml(this IEnumerable<HtmlElement> self)
             => new List()
             {
