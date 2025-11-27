@@ -13,19 +13,19 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Set the attributes of this tag
         /// </summary>
-        public Tag Attr(params IHtmlAttribute[] attrs)
+        public Tag Attr(params ReadOnlySpan<IHtmlAttribute> attrs)
          => this with
          {
-             Attributes = Seq<IHtmlAttribute>(attrs)
+             Attributes = Seq(attrs)
          };
 
         /// <summary>
         /// Set the children of this tag
         /// </summary>
-        public Tag Child(params HtmlElement[] children)
+        public Tag Child(params ReadOnlySpan<HtmlElement> children)
             => this with
             {
-                Children = Seq<HtmlElement>(children)
+                Children = Seq(children)
             };
 
         /// <summary>
