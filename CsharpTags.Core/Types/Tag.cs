@@ -3,11 +3,45 @@ using CsharpTags.Core.Interface;
 
 namespace CsharpTags.Core.Types
 {
+    /// <summary>
+    /// Represents an HTML tag element with attributes and child elements.
+    /// </summary>
     public record Tag : HtmlElement
     {
+        /// <summary>
+        /// Gets or initializes the name of the HTML tag.
+        /// </summary>
+        /// <value>
+        /// A string representing the HTML tag name (e.g., "div", "span", "input").
+        /// This property is required and must be initialized during object creation.
+        /// </value>
         public required string TagName { get; init; }
+
+        /// <summary>
+        /// Gets or initializes a value indicating whether the tag is a void (self-closing) element.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the tag is a void element that doesn't require a closing tag;
+        /// <c>false</c> if the tag requires both opening and closing tags with content.
+        /// This property is required and must be initialized during object creation.
+        /// </value>
         public required bool IsVoid { get; init; }
+
+        /// <summary>
+        /// Gets or initializes the sequence of HTML attributes associated with this tag.
+        /// </summary>
+        /// <value>
+        /// A <see cref="LanguageExt.Seq{A}"/> of <see cref="IHtmlAttribute"/> objects representing the tag's attributes.
+        /// Defaults to an empty sequence if not explicitly set.
+        /// </value>
         public Seq<IHtmlAttribute> Attributes { get; init; } = Seq<IHtmlAttribute>();
+        /// <summary>
+        /// Gets or initializes the sequence of child elements contained within this tag.
+        /// </summary>
+        /// <value>
+        /// A <see cref="LanguageExt.Seq{A}"/> of <see cref="HtmlElement"/> objects representing the nested content.
+        /// Defaults to an empty sequence if not explicitly set.
+        /// </value>
         public Seq<HtmlElement> Children { get; init; } = Seq<HtmlElement>();
 
         /// <summary>
