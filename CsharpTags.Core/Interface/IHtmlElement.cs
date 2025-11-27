@@ -2,6 +2,9 @@ using CsharpTags.Core.Types;
 
 namespace CsharpTags.Core.Interface
 {
+    /// <summary>
+    /// "interface" Representing something that can be represented as html
+    /// </summary>
     public abstract record HtmlElement
     {
         /// <summary>
@@ -9,41 +12,65 @@ namespace CsharpTags.Core.Interface
         /// </summary>
         public abstract string Render();
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(string v) => new Str()
         {
             Value = v
         };
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(int v) => new Str()
         {
             Value = v.ToString()
         };
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(long v) => new Str()
         {
             Value = v.ToString()
         };
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(double v) => new Str()
         {
             Value = v.ToString()
         };
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(float v) => new Str()
         {
             Value = v.ToString()
         };
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(decimal v) => new Str()
         {
             Value = v.ToString()
         };
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(DateTime v) => new Str()
         {
             Value = v.ToString()
         };
 
+        /// <summary>
+        /// Use Str to convert to HtmlElement
+        /// </summary>
         public static implicit operator HtmlElement(Guid v) => new Str()
         {
             Value = v.ToString()
