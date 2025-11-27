@@ -80,6 +80,9 @@ namespace CsharpTags.Core.Types
                 Children = Children.Concat(children)
             };
 
+        /// <summary>
+        /// Convert this Tag with attributes and children to a well formed html element
+        /// </summary>
         public override string Render()
         {
             var sb = new StringBuilder();
