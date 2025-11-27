@@ -3,7 +3,9 @@ using static CsharpTags.Core.Types.Prelude;
 
 namespace CsharpTags.Htmx.Types
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public static class Prelude
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         #region HTMX Enums
 
