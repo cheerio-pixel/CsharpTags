@@ -97,7 +97,7 @@ namespace CsharpTags.Core.Types
                                 RemainingChildren = childTag.Children
                             });
                         }
-                        else if (child is List childList)
+                        else if (child is HtmlList childList)
                         {
                             state.RemainingChildren = Seq(childList.Value)
                                 .Concat(state.RemainingChildren);
