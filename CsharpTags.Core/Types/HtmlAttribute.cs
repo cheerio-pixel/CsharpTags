@@ -1575,7 +1575,7 @@ namespace CsharpTags.Core.Types
         /// </remarks>
         /// <example>
         /// <code>
-        /// var dataUserId = Prelude.DataAttr("user-id") << "12345";
+        /// var dataUserId = Prelude.DataAttr("user-id") &lt;&lt; "12345";
         /// // Renders as: data-user-id="12345"
         /// </code>
         /// </example>

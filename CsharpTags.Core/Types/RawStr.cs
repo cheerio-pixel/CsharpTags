@@ -2,8 +2,14 @@ using CsharpTags.Core.Interface;
 
 namespace CsharpTags.Core.Types
 {
+    /// <summary>
+    /// A unencoded string, useful for pure html.
+    /// </summary>
     public record RawStr : HtmlElement
     {
+        /// <summary>
+        /// Inner value of this raw string
+        /// </summary>
         public required string Value { get; set; }
 
         /// <inheritdoc/>
