@@ -2,24 +2,15 @@ using CsharpTags.Core.Interface;
 
 namespace CsharpTags.Core.Types
 {
-    /// <summary>
-    /// The element that renders to nothihing, useful for conditional rendering
-    /// </summary>
-    public record NoneElement : HtmlElement
-    {
-        /// <inheritdoc/>
-        public override string Render()
-        {
-            return string.Empty;
-        }
-    }
-
     public static partial class Prelude
     {
         /// <summary>
         /// Singleton for easy access of the None element.
         /// </summary>
-        public static readonly HtmlElement None_ = new NoneElement();
+        public static readonly HtmlElement None_ = new RawStr()
+        {
+            Value = string.Empty
+        };
 
         /// <summary>
         /// Helper for rendering the element if <paramref name="flag" /> is true
