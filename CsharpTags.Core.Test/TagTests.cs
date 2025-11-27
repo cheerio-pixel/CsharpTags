@@ -23,7 +23,7 @@ public class TagTests
     public void Tag_Render_WithAttributes()
     {
         // Arrange
-        var div = Div.Attr(Class << "container", Id << "main");
+        var div = Div.Attr(Class << "container", Id_ << "main");
 
         // Act
         var result = div.Render();
@@ -95,7 +95,7 @@ public class TagTests
     {
         // Arrange
         var div = Div.Attr(Class << "container");
-        var divWithId = div.AppendAttr(Id << "main");
+        var divWithId = div.AppendAttr(Id_ << "main");
 
         // Act
         var result = divWithId.Render();
