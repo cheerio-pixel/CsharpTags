@@ -136,6 +136,14 @@ namespace CsharpTags.Core.Types
                             state.RemainingChildren = Seq(childList.Value)
                                 .Concat(state.RemainingChildren);
                         }
+                        else if (child is HtmlConditionalRenderingBuilder builder)
+                        {
+                            // Instead of rendering, flatten because maybe we have
+                            // a Tag, or HtmlList which in turn are going to be
+                            // rendered alongside the logic and state of this
+                            // tag.
+                            state.RemainingChildren = builder.Element.Cons(state.RemainingChildren);
+                        }
                         else
                         {
                             sb.Append(child.Render());
