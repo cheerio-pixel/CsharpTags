@@ -14,7 +14,7 @@ A type-safe HTML generation library for C# that provides a fluent, functional ap
 ## Installation
 
 ```xml
-<PackageReference Include="CsharpTags.Core" Version="1.0.0-beta-1" />
+<PackageReference Include="CsharpTags.Core" Version="1.0.0-beta-4" />
 ```
 
 ## Quick Start
@@ -50,8 +50,8 @@ string result = html.Render();
 
 If you install 
 
-```csharp
-<PackageReference Include="CsharpTags.AspNetCore" Version="1.0.0-beta-3" />
+```xml
+<PackageReference Include="CsharpTags.AspNetCore" Version="1.0.0-beta-4" />
 ```
 And add the import
 ```csharp
