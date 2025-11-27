@@ -42,7 +42,7 @@ public class HtmlElementTests
             new Str { Value = "World" }
         };
 
-        var list = new List { Value = elements };
+        var list = new HtmlList { Value = elements };
 
         // Act
         var result = list.Render();
@@ -65,7 +65,7 @@ public class HtmlElementTests
         var list = elements.ToHtml();
 
         // Assert
-        Assert.IsType<List>(list);
+        Assert.IsType<HtmlList>(list);
         Assert.Equal("Item1Item2", list.Render());
     }
 }
