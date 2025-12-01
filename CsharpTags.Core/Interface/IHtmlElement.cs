@@ -75,5 +75,23 @@ namespace CsharpTags.Core.Interface
         {
             Value = v.ToString()
         };
+
+        /// <summary>
+        /// Convert seq to element
+        /// </summary>
+        public static implicit operator HtmlElement(Seq<HtmlElement> v)
+            => new HtmlList()
+            {
+                Value = v
+            };
+
+        /// <summary>
+        /// Convert list to element
+        /// </summary>
+        public static implicit operator HtmlElement(List<HtmlElement> v)
+            => new HtmlList()
+            {
+                Value = v
+            };
     }
 }
