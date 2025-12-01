@@ -20,30 +20,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// The encoding function that converts an attribute value to its HTML string representation
         /// </summary>
-        public required Func<HtmlAttribute<T>, string> Encode { get; init; }
-        /// <summary>
-        /// Creates a new HtmlKey with a different value type by providing a new encoder function.
-        /// This allows transforming an attribute key to work with different data types while preserving the attribute name.
-        /// </summary>
-        /// <typeparam name="G">The target value type for the new HtmlKey</typeparam>
-        /// <param name="NewEncoder">The encoder function that converts HtmlAttribute&lt;G&gt; to string</param>
-        /// <returns>A new HtmlKey instance with the same name but different value type and encoder</returns>
-        /// <example>
-        /// <code>
-        /// // Create a key for integer values
-        /// var intKey = Prelude.Class.Map&lt;int&gt;((HtmlAttribute&lt;int&gt; attr) => $"{attr.Name}=\"{attr.Value}\"");
-        ///
-        /// // Transform a string-based key to work with custom objects
-        /// var customKey = Prelude.Data.Map&lt;CustomObject&gt;((HtmlAttribute&lt;CustomObject&gt; attr) =>
-        ///     $"{attr.Name}=\"{attr.Value.ToCustomFormat()}\"");
-        /// </code>
-        /// </example>
-        public HtmlKey<G> Map<G>(Func<HtmlAttribute<G>, string> NewEncoder)
-            => new()
-            {
-                Encode = NewEncoder,
-                Name = Name
-            };
+        public required Func<T, string?> Encode { get; init; }
 
         /// <summary>
         /// Binds a value to this attribute key, creating a concrete HtmlAttribute instance
@@ -135,7 +112,11 @@ namespace CsharpTags.Core.Types
         /// </code>
         /// </example>
         public string Render()
-            => Key.Encode(this);
+            => Key.Encode(Value) is {} value?
+            value == string.Empty ?
+            Key.Name
+            : (Key.Name + "=\"" + value + "\"")
+            : string.Empty;
     }
 
     /// <summary>
@@ -158,124 +139,114 @@ namespace CsharpTags.Core.Types
         public static IHtmlAttribute RenderWhen(bool flag, IHtmlAttribute attr)
             => flag ? attr : NoneAttr;
 
+        /// <summary>
+        /// Helper for rendering the attribute if <paramref name="flag" /> is true. Lazy version.
+        /// </summary>
+        public static IHtmlAttribute RenderWhen(bool flag, Func<IHtmlAttribute> attr)
+            => flag ? attr() : NoneAttr;
+
         #region Encoding Functions
 
         /// <summary>
         /// Encodes string values with HTML encoding and wraps in quotes
         /// </summary>
-        /// <param name="attr">The string attribute to encode</param>
+        /// <param name="val">The string attribute to encode</param>
         /// <returns>HTML-encoded attribute string: name="value"</returns>
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes#attr-class"/> - MDN Global Attributes
         /// </remarks>
-        public static string StringAsIsEncoder(HtmlAttribute<string> attr)
-            => $"{attr.Key.Name}=\"{WebUtility.HtmlEncode(attr.Value)}\"";
+        public static string? StringAsIsEncoder(string val)
+            => WebUtility.HtmlEncode(val);
 
         /// <summary>
         /// Encodes boolean values as presence attributes (renders only name when true)
         /// </summary>
-        /// <param name="attr">The boolean attribute to encode</param>
+        /// <param name="val">The boolean attribute to encode</param>
         /// <returns>Attribute name if true, empty string if false</returns>
         /// <remarks>
         /// Used for attributes like disabled, readonly, required.
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes#boolean_attributes"/> - MDN Boolean Attributes
         /// </remarks>
-        public static string BooleanPresenceEncoder(HtmlAttribute<bool> attr)
-            => attr.Value ? attr.Key.Name : "";
+        public static string? BooleanPresenceEncoder(bool val)
+            => val ? string.Empty : null;
 
         /// <summary>
         /// Encodes boolean values as "true"/"false" strings
         /// </summary>
-        /// <param name="attr">The boolean attribute to encode</param>
-        /// <returns>name="true" or name="false"</returns>
-        public static string BooleanAsIsEncoder(HtmlAttribute<bool> attr)
-            => $"{attr.Key.Name}=\"{attr.Value.ToString().ToLowerInvariant()}\"";
+        /// <param name="val">The boolean attribute to encode</param>
+        /// <returns>true or false</returns>
+        public static string BooleanAsIsEncoder(bool val)
+            => val.ToString().ToLowerInvariant();
 
         /// <summary>
         /// Encodes boolean values as "yes"/"no" strings
         /// </summary>
-        /// <param name="attr">The boolean attribute to encode</param>
-        /// <returns>name="yes" or name="no"</returns>
-        public static string BooleanAsYesNoEncoder(HtmlAttribute<bool> attr)
-            => $"{attr.Key.Name}=\"{(attr.Value ? "yes" : "no")}\"";
+        /// <param name="val">The boolean attribute to encode</param>
+        /// <returns>yes or no</returns>
+        public static string BooleanAsYesNoEncoder(bool val)
+            => val ? "yes" : "no";
 
         /// <summary>
         /// Encodes integer values as strings
         /// </summary>
-        /// <param name="attr">The integer attribute to encode</param>
-        /// <returns>name="value"</returns>
-        public static string IntAsIsEncoder(HtmlAttribute<int> attr)
-            => $"{attr.Key.Name}=\"{attr.Value}\"";
+        /// <param name="val">The integer attribute to encode</param>
+        /// <returns>value</returns>
+        public static string IntAsIsEncoder(int val)
+            => val.ToString();
 
         /// <summary>
         /// Encodes double values as strings
         /// </summary>
-        /// <param name="attr">The double attribute to encode</param>
-        /// <returns>name="value"</returns>
-        public static string DoubleAsIsEncoder(HtmlAttribute<double> attr)
-            => $"{attr.Key.Name}=\"{attr.Value}\"";
+        /// <param name="val">The double attribute to encode</param>
+        /// <returns>value</returns>
+        public static string DoubleAsIsEncoder(double val)
+            => val.ToString();
 
         /// <summary>
         /// Encodes boolean values as "on"/"off" strings
         /// </summary>
-        /// <param name="attr">The boolean attribute to encode</param>
-        /// <returns>name="on" or name="off"</returns>
-        public static string BooleanAsOnOffAsIsEncoder(HtmlAttribute<bool> attr)
-            => $"{attr.Key.Name}=\"{(attr.Value ? "on" : "off")}\"";
-
-        /// <summary>
-        /// Encodes boolean values as "true"/"false" strings (alias for BooleanAsIsEncoder)
-        /// </summary>
-        /// <param name="attr">The boolean attribute to encode</param>
-        /// <returns>name="true" or name="false"</returns>
-        public static string BooleanAsTrueFalseStringEncoder(HtmlAttribute<bool> attr)
-            => $"{attr.Key.Name}=\"{attr.Value.ToString().ToLowerInvariant()}\"";
+        /// <param name="val">The boolean attribute to encode</param>
+        /// <returns>on or off</returns>
+        public static string BooleanAsOnOffEncoder(bool val)
+            => val ? "on" : "off";
 
         /// <summary>
         /// Encodes integer values as strings (alias for IntAsIsEncoder)
         /// </summary>
-        /// <param name="attr">The integer attribute to encode</param>
-        /// <returns>name="value"</returns>
-        public static string IntAsStringEncoder(HtmlAttribute<int> attr)
-            => $"{attr.Key.Name}=\"{attr.Value}\"";
-
-        /// <summary>
-        /// Encodes boolean values as "on"/"off" strings (alias for BooleanAsOnOffAsIsEncoder)
-        /// </summary>
-        /// <param name="attr">The boolean attribute to encode</param>
-        /// <returns>name="on" or name="off"</returns>
-        public static string BooleanAsOnOffStringEncoder(HtmlAttribute<bool> attr)
-            => $"{attr.Key.Name}=\"{(attr.Value ? "on" : "off")}\"";
+        /// <param name="val">The integer attribute to encode</param>
+        /// <returns>value</returns>
+        public static string IntAsStringEncoder(int val)
+            => val.ToString();
 
         /// <summary>
         /// Encodes enum values by converting to lowercase string
         /// </summary>
         /// <typeparam name="T">The enum type</typeparam>
-        /// <param name="attr">The enum attribute to encode</param>
-        /// <returns>name="value" with value in lowercase</returns>
-        public static string EnumAsIsEncoder<T>(HtmlAttribute<T> attr) where T : Enum
-            => $"{attr.Key.Name}=\"{attr.Value}\"";
+        /// <param name="val">The enum attribute to encode</param>
+        /// <returns>value with value in lowercase</returns>
+        public static string EnumAsIsEncoder<T>(T val) where T : Enum
+            => val.ToString();
 
         /// <summary>
         /// Encodes enum values by converting to lowercase string
         /// </summary>
         /// <typeparam name="T">The enum type</typeparam>
-        /// <param name="attr">The enum attribute to encode</param>
-        /// <returns>name="value" with value in lowercase</returns>
-        public static string EnumAsLowerCaseEncoder<T>(HtmlAttribute<T> attr) where T : Enum
-            => $"{attr.Key.Name}=\"{attr.Value.ToString().ToLowerInvariant()}\"";
+        /// <param name="val">The enum attribute to encode</param>
+        /// <returns>value with value in lowercase</returns>
+        public static string EnumAsLowerCaseEncoder<T>(T val) where T : Enum
+            => val.ToString().ToLowerInvariant();
 
         /// <summary>
         /// Encodes enum values by converting to kebab-case string
         /// </summary>
         /// <typeparam name="T">The enum type</typeparam>
-        /// <param name="attr">The enum attribute to encode</param>
-        /// <returns>name="value" with value in kebab-case</returns>
-        public static string EnumAsKebabCaseEncoder<T>(HtmlAttribute<T> attr) where T : Enum
+        /// <param name="e">The enum to encode</param>
+        /// <returns>value with value in kebab-case</returns>
+        public static string EnumAsKebabCaseEncoder<T>(T e) where T : Enum
         {
-            var value = attr.Value.ToString();
+            var value = e.ToString();
             var kebabCase = System.Text.RegularExpressions.Regex.Replace(value, "([a-z])([A-Z])", "$1-$2").ToLowerInvariant();
-            return $"{attr.Key.Name}=\"{kebabCase}\"";
+            return kebabCase;
         }
 
         /// <summary>
@@ -284,8 +255,8 @@ namespace CsharpTags.Core.Types
         public static HtmlKey<Either<A, B>>
             EitherKey<A, B>(
                     string key,
-                    Func<HtmlAttribute<A>, string> left,
-                    Func<HtmlAttribute<B>, string> right)
+                    Func<A, string?> left,
+                    Func<B, string?> right)
         {
             var leftKey = new HtmlKey<A>()
             {
@@ -301,9 +272,9 @@ namespace CsharpTags.Core.Types
             return new()
             {
                 Name = key,
-                Encode = attr =>
+                Encode = value =>
                 {
-                    return attr.Value.Match(
+                    return value.Match(
                             Left: a => leftKey.Bind(a).Render(),
                             Right: b => rightKey.Bind(b).Render()
                             );
@@ -470,7 +441,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> ContentEditable = new()
         {
             Name = "contenteditable",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -612,7 +583,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Unselectable = new()
         {
             Name = "unselectable",
-            Encode = BooleanAsOnOffStringEncoder
+            Encode = BooleanAsOnOffEncoder
         };
 
         /// <summary>
@@ -731,7 +702,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Draggable = new()
         {
             Name = "draggable",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -743,7 +714,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Spellcheck = new()
         {
             Name = "spellcheck",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1611,7 +1582,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Atomic = new()
         {
             Name = "aria-atomic",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1635,7 +1606,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Busy = new()
         {
             Name = "aria-busy",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1695,7 +1666,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Disabled = new()
         {
             Name = "aria-disabled",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1719,7 +1690,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Expanded = new()
         {
             Name = "aria-expanded",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1743,7 +1714,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Grabbed = new()
         {
             Name = "aria-grabbed",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1755,7 +1726,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> HasPopup = new()
         {
             Name = "aria-haspopup",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1767,7 +1738,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Hidden = new()
         {
             Name = "aria-hidden",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1839,7 +1810,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> MultiLine = new()
         {
             Name = "aria-multiline",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1851,7 +1822,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> MultiSelectable = new()
         {
             Name = "aria-multiselectable",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1911,7 +1882,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> ReadOnly = new()
         {
             Name = "aria-readonly",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1935,7 +1906,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Required = new()
         {
             Name = "aria-required",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>
@@ -1947,7 +1918,7 @@ namespace CsharpTags.Core.Types
         public readonly static HtmlKey<bool> Selected = new()
         {
             Name = "aria-selected",
-            Encode = BooleanAsTrueFalseStringEncoder
+            Encode = BooleanAsIsEncoder
         };
 
         /// <summary>

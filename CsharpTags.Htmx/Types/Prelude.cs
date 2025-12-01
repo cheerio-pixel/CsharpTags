@@ -67,19 +67,19 @@ namespace CsharpTags.Htmx.Types
             /// <summary>
             /// Encodes SyncStrategy with CSS selector and sync strategy values
             /// </summary>
-            /// <param name="attr">The sync strategy attribute to encode</param>
-            /// <returns>hx-sync="selector:strategy" with proper HTMX sync values</returns>
-            public static string SyncStrategyEncoder(HtmlAttribute<SyncStrategy> attr)
+            /// <param name="val">The sync strategy attribute to encode</param>
+            /// <returns>selector:strategy with proper HTMX sync values</returns>
+            public static string SyncStrategyEncoder(SyncStrategy val)
             {
-                var strat = attr.Value.Strategy switch
+                var strat = val.Strategy switch
                 {
                     SyncStrategy_.QueueAll => "queue all",
                     SyncStrategy_.QueueFirst => "queue first",
                     SyncStrategy_.QueueLast => "queue last",
-                    _ => attr.Value.Strategy.ToString().ToLowerInvariant()
+                    _ => val.Strategy.ToString().ToLowerInvariant()
                 };
-                var value = $"{attr.Value.Selector}:{strat}";
-                return $"{attr.Key.Name}=\"{value}\"";
+                var value = $"{val.Selector}:{strat}";
+                return value;
             }
 
             /// <summary>
@@ -189,20 +189,20 @@ namespace CsharpTags.Htmx.Types
             /// <summary>
             /// Encodes SwapStrategy enum with custom string values
             /// </summary>
-            /// <param name="attr">The swap strategy attribute to encode</param>
-            /// <returns>hx-swap="value" with proper HTMX swap values</returns>
-            public static string SwapStrategyEncoder(HtmlAttribute<SwapStrategy> attr)
+            /// <param name="val">The swap strategy attribute to encode</param>
+            /// <returns>value with proper HTMX swap values</returns>
+            public static string SwapStrategyEncoder(SwapStrategy val)
             {
-                var value = attr.Value.Strategy switch
+                var value = val.Strategy switch
                 {
                     SwapStrategy_.InnerHTML => "innerHTML",
                     SwapStrategy_.OuterHTML => "outerHTML",
                     SwapStrategy_.TextContent => "textContent",
-                    _ => attr.Value.Strategy.ToString().ToLowerInvariant()
+                    _ => val.Strategy.ToString().ToLowerInvariant()
                 };
-                return $"{attr.Key.Name}=\"{value}" + (
-                        attr.Value.Mod == string.Empty ? string.Empty : " " + attr.Value.Mod
-                        ) + "\"";
+                return value + (
+                        val.Mod == string.Empty ? string.Empty : " " + val.Mod
+                        );
             }
 
             /// <summary>
@@ -236,7 +236,7 @@ namespace CsharpTags.Htmx.Types
             /// Insert the response content before the target element.
             /// The new content becomes a sibling that appears immediately before the target element.
             /// </summary>
-            public readonly static SwapStrategy BeforeBegin  = new SwapStrategy
+            public readonly static SwapStrategy BeforeBegin = new SwapStrategy
             {
                 Strategy = SwapStrategy_.BeforeBegin
             };
