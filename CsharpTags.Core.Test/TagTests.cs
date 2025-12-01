@@ -144,9 +144,9 @@ public class TagTests
     [Fact]
     public void Tag_ConditionalRender_FirstConditionTrue()
     {
-        var ele = IfH(true, Div.Child(Counter(1)))
-            .ElseIf(true, Counter(2))
-            .Else(Counter(3));
+        var ele = IfH(true, () => Div.Child(Counter(1)))
+            .ElseIf(() => true, () => Counter(2))
+            .Else(() => Counter(3));
 
         Assert.Equal(Div.Child(Counter(1)), ele);
     }
@@ -154,9 +154,9 @@ public class TagTests
     [Fact]
     public void Tag_ConditionalRender_SecondConditionTrue()
     {
-        var ele = IfH(false, Div.Child(Counter(1)))
-            .ElseIf(true, Counter(2))
-            .Else(Counter(3));
+        var ele = IfH(false, () => Div.Child(Counter(1)))
+            .ElseIf(() => true, () => Counter(2))
+            .Else(() => Counter(3));
 
         Assert.Equal(ele, Counter(2));
     }
@@ -164,9 +164,9 @@ public class TagTests
     [Fact]
     public void Tag_ConditionalRender_AllConditionsFalse()
     {
-        var ele = IfH(false, Div.Child(Counter(1)))
-            .ElseIf(false, Counter(2))
-            .Else(Counter(3));
+        var ele = IfH(false, () => Div.Child(Counter(1)))
+            .ElseIf(() => false, () => Counter(2))
+            .Else(() => Counter(3));
 
         Assert.Equal(Counter(3), ele);
     }
@@ -174,7 +174,7 @@ public class TagTests
     [Fact]
     public void Tag_ConditionalRender_SingleIfWithoutElse()
     {
-        var ele = IfH(true, Counter(1)).Element;
+        var ele = IfH(true, () => Counter(1)).Element;
 
         Assert.Equal(Counter(1), ele);
     }
@@ -182,7 +182,7 @@ public class TagTests
     [Fact]
     public void Tag_ConditionalRender_SingleIfFalseWithoutElse()
     {
-        var ele = IfH(false, Counter(1)).Element;
+        var ele = IfH(false, () => Counter(1)).Element;
 
         Assert.Equal(None_, ele);
     }
@@ -190,11 +190,11 @@ public class TagTests
     [Fact]
     public void Tag_ConditionalRender_MultipleElseIfConditions()
     {
-        var ele = IfH(false, Counter(1))
-            .ElseIf(false, Counter(2))
-            .ElseIf(true, Counter(3))
-            .ElseIf(true, Counter(4)) // This should not be evaluated
-            .Else(Counter(5));
+        var ele = IfH(false, () => Counter(1))
+            .ElseIf(() => false, () => Counter(2))
+            .ElseIf(() => true, () => Counter(3))
+            .ElseIf(() => true, () => Counter(4)) // This should not be evaluated
+            .Else(() => Counter(5));
 
         Assert.Equal(Counter(3), ele);
     }
@@ -208,8 +208,8 @@ public class TagTests
             P.Child("World")
         );
 
-        var ele = IfH(true, complexElement)
-            .Else(Counter(99));
+        var ele = IfH(true, () => complexElement)
+            .Else(() => Counter(99));
 
         Assert.Equal(complexElement, ele);
     }
@@ -218,10 +218,10 @@ public class TagTests
     public void Tag_ConditionalRender_NestedConditionals()
     {
         var ele = IfH(true,
-                IfH(false, Counter(1))
-                .Else(Counter(2))
+                () => IfH(false, () => Counter(1))
+                .Else(() => Counter(2))
             )
-            .Else(Counter(3));
+            .Else(() => Counter(3));
 
         Assert.Equal(Counter(2), ele);
     }
@@ -229,8 +229,8 @@ public class TagTests
     [Fact]
     public void Tag_ConditionalRender_EmptyElse()
     {
-        var ele = IfH(false, Counter(1))
-            .ElseIf(false, Counter(2)).Element;
+        var ele = IfH(false, () => Counter(1))
+            .ElseIf(() => false, () => Counter(2)).Element;
 
         // Should handle empty else case gracefully
         Assert.Equal(None_, ele);
@@ -240,11 +240,11 @@ public class TagTests
     public void Tag_ConditionalRender_DynamicConditions()
     {
         var condition1 = 1 + 1 == 2; // true
-        var condition2 = 2 + 2 == 5; // false
+        var condition2 = () => 2 + 2 == 5; // false
 
-        var ele = IfH(condition1, Counter(1))
-            .ElseIf(condition2, Counter(2))
-            .Else(Counter(3));
+        var ele = IfH(condition1, () => Counter(1))
+            .ElseIf(condition2, () => Counter(2))
+            .Else(() => Counter(3));
 
         Assert.Equal(Counter(1), ele);
     }
@@ -253,9 +253,9 @@ public class TagTests
     public void Tag_ConditionalRender_WithAttributes()
     {
         var ele = IfH(true,
-                Input.Attr(Tpe << InputType.Text, Value << "test", Name << "field1")
+                () => Input.Attr(Tpe << InputType.Text, Value << "test", Name << "field1")
             )
-            .Else(Input.Attr(Tpe << InputType.Hidden, Value << "fallback", Name << "field2"));
+            .Else(() => Input.Attr(Tpe << InputType.Hidden, Value << "fallback", Name << "field2"));
 
         var expected = Input.Attr(Tpe << InputType.Text, Value << "test", Name << "field1");
         Assert.Equal(expected, ele);

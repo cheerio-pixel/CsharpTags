@@ -16,17 +16,17 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// In case the previous condition failed, check this other one.
         /// </summary>
-        public HtmlConditionalRenderingBuilder ElseIf(bool flag, HtmlElement element)
+        public HtmlConditionalRenderingBuilder ElseIf(Func<bool> flag, Func<HtmlElement> element)
             =>
-            Element == Prelude.None_ ? flag ?
-            new() { Element = element } :
+            Element == Prelude.None_ ? flag() ?
+            new() { Element = element() } :
             this : this;
 
         /// <summary>
         /// Provide a default value in case the previous conditions failed.
         /// </summary>
-        public HtmlElement Else(HtmlElement element)
-            => Element == Prelude.None_ ? element : Element;
+        public HtmlElement Else(Func<HtmlElement> element)
+            => Element == Prelude.None_ ? element() : Element;
 
         /// <inheritdoc/>
         public override string Render()
@@ -64,7 +64,7 @@ namespace CsharpTags.Core.Types
         /// Which means that you can render the element like in a normal
         /// if-elseif-else statement
         /// </summary>
-        public static HtmlConditionalRenderingBuilder IfH(bool flag, HtmlElement element)
-            => new() { Element = WhenH(flag, element) };
+        public static HtmlConditionalRenderingBuilder IfH(bool flag, Func<HtmlElement> element)
+            => new() { Element = flag ? element() : None_ };
     }
 }
