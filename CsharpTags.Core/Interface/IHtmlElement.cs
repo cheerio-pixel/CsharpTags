@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using CsharpTags.Core.Types;
 
 namespace CsharpTags.Core.Interface
@@ -11,6 +12,12 @@ namespace CsharpTags.Core.Interface
         /// Convert this Virtual DOM element into its string representation.
         /// </summary>
         public abstract string Render();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HtmlElement Transform(Func<HtmlElement, Option<HtmlElement>> map)
+        {
+            return Zipper<HtmlZipperOps, Tag, HtmlElement>.Transform(this, map);
+        }
 
         /// <summary>
         /// Use Str to convert to HtmlElement
