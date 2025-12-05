@@ -135,7 +135,7 @@ namespace CsharpTags.Core.Types
             var thiz = this;
             return
             from asBranch in Z.AsBranch(Focus)
-            from children in thiz.Children()
+            let children = Z.ChildrenOf(asBranch)
             from head in children.Head
             select new Zipper<Z, TBranch, TElement>()
             {
@@ -372,7 +372,7 @@ namespace CsharpTags.Core.Types
         public Option<Zipper<Z, TBranch, TElement>> InsertChild(TElement element)
             =>
             from focusAsBranch in Z.AsBranch(Focus)
-            from children in Children()
+            let children = Z.ChildrenOf(focusAsBranch)
             select Replace(Z.MakeNode(focusAsBranch, element.Cons(children)));
 
         /// <summary>
@@ -385,7 +385,7 @@ namespace CsharpTags.Core.Types
         public Option<Zipper<Z, TBranch, TElement>> AppendChild(TElement element)
             =>
             from focusAsBranch in Z.AsBranch(Focus)
-            from children in Children()
+            let children = Z.ChildrenOf(focusAsBranch)
             select Replace(Z.MakeNode(focusAsBranch, children.Add(element)));
 
         /// <summary>
