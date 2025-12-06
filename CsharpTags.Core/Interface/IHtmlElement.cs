@@ -19,6 +19,12 @@ namespace CsharpTags.Core.Interface
             return Zipper<HtmlZipperOps, Tag, HtmlElement>.Transform(this, map);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HtmlElement Transform(IEnumerable<Func<HtmlElement, Option<HtmlElement>>> mappers)
+        {
+            return Zipper<HtmlZipperOps, Tag, HtmlElement>.Transform(this, mappers);
+        }
+
         /// <summary>
         /// Use Str to convert to HtmlElement
         /// </summary>

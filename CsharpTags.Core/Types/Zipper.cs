@@ -1,4 +1,5 @@
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using CsharpTags.Core.Interface;
 
@@ -90,7 +91,7 @@ namespace CsharpTags.Core.Types
         public required bool IsChanged { get; init; }
 
         /// <summary>
-        /// Indicates whether this location is the end of a traversal 
+        /// Indicates whether this location is the end of a traversal
         /// (no more nodes to visit).
         /// </summary>
         public required bool IsEnd { get; init; }
@@ -591,6 +592,27 @@ namespace CsharpTags.Core.Types
                     return current.Focus;
                 }
                 current = current.Edit(map).GoNext();
+            }
+        }
+
+        public static TElement Transform(TElement start, IEnumerable<Func<TElement, Option<TElement>>> mappers)
+        {
+            var mappersSeq = Seq(mappers);
+
+            return Transform(start, map);
+
+            Option<TElement> map(TElement element) {
+                var result = mappersSeq.Fold((LastApplied: element, IsChanged: false), (acc, it) =>
+                        it(acc.LastApplied).Match(
+                            Some: x => (LastApplied: x, IsChanged: true),
+                            None: () => acc
+                            )
+                        );
+                if (result.IsChanged)
+                {
+                    return result.LastApplied;
+                }
+                return None;
             }
         }
     }
