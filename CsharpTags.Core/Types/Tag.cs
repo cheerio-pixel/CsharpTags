@@ -65,7 +65,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Append the attributes to the already existing sequence of attributes of this tag
         /// </summary>
-        public Tag AppendAttr(params IHtmlAttribute[] attrs)
+        public Tag AppendAttr(params ReadOnlySpan<IHtmlAttribute> attrs)
          => this with
          {
              Attributes = Attributes.Concat(attrs)
@@ -74,7 +74,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Append the children to the already existing sequence of children of this tag
         /// </summary>
-        public Tag AppendChild(params HtmlElement[] children)
+        public Tag AppendChild(params ReadOnlySpan<HtmlElement> children)
             => this with
             {
                 Children = Children.Concat(children)

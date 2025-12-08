@@ -53,11 +53,12 @@ namespace CsharpTags.Core.Types
     /// which allows efficient navigation and modification of immutable data structures.
     /// </remarks>
     public record Zipper<Z, TBranch, TElement>
+        : IEnumerable<TElement>
         where Z : ZipOps<TBranch, TElement>
         where TBranch : TElement
     {
         /// <summary>
-        /// Left siblings of the currently focused node, in reverse order 
+        /// Left siblings of the currently focused node, in reverse order
         /// (closest sibling is at the head).
         /// </summary>
         public required Seq<TElement> Left { get; init; }
@@ -598,6 +599,10 @@ namespace CsharpTags.Core.Types
         public static TElement Transform(TElement start, IEnumerable<Func<TElement, Option<TElement>>> mappers)
         {
             var mappersSeq = Seq(mappers);
+            if (mappersSeq.IsEmpty)
+            {
+                return start;
+            }
 
             return Transform(start, map);
 
@@ -614,6 +619,25 @@ namespace CsharpTags.Core.Types
                 }
                 return None;
             }
+        }
+
+        /// <summary>
+        /// Convert this tree structure into a <see cref="IEnumerator{T}"/>
+        /// </summary>
+        /// <returns>The enumerator</returns>
+        public IEnumerator<TElement> GetEnumerator()
+        {
+            var current = this;
+            while (!current.IsEnd)
+            {
+                yield return current.Focus;
+                current = current.GoNext();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 

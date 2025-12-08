@@ -1,4 +1,5 @@
 using System.Text;
+using CsharpTags.AspNetCore.Transformers;
 using CsharpTags.Core.Interface;
 using Microsoft.AspNetCore.Http;
 
@@ -6,7 +7,8 @@ namespace CsharpTags.AspNetCore.Filters
 {
     /// <summary>
     /// An endpoint filter that automatically converts <see cref="HtmlElement"/> return values
-    /// into proper HTTP responses with HTML content type.
+    /// into proper HTTP responses with HTML content type. Also applies transformation added
+    /// with AddHtmlTranformation
     /// </summary>
     /// <remarks>
     /// This filter intercepts endpoint execution and checks if the return value is an <see cref="HtmlElement"/>.
@@ -18,6 +20,13 @@ namespace CsharpTags.AspNetCore.Filters
     /// </remarks>
     public class HtmlElementEndpointFilter : IEndpointFilter
     {
+        private readonly IEnumerable<HtmlTransformer> _transformers;
+
+        public HtmlElementEndpointFilter(IEnumerable<HtmlTransformer> transformers)
+        {
+            _transformers = transformers;
+        }
+
         /// <summary>
         /// Invokes the endpoint filter to process the request and response.
         /// </summary>
@@ -41,7 +50,9 @@ namespace CsharpTags.AspNetCore.Filters
             if (result is HtmlElement htmlElement)
             {
                 return Results.Content(
-                    htmlElement.Render(),
+                        htmlElement
+                        .Transform(_transformers.Select(x => x.F))
+                        .Render(),
                     "text/html",
                     Encoding.UTF8
                 );
