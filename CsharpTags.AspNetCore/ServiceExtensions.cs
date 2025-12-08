@@ -11,6 +11,9 @@ using CsharpTags.AspNetCore.Filters;
 
 namespace CsharpTags.AspNetCore
 {
+    /// <summary>
+    /// Extensions for asp net core
+    /// </summary>
     public static class ServiceExtensions
     {
         /// <summary>
@@ -25,12 +28,11 @@ namespace CsharpTags.AspNetCore
         /// <summary>
         /// Add Html transformation that auto inserts the antiforgery
         /// token if is not already there.
-        /// <br />
-        /// <br />
-        /// Note:
-        ///      Should also call services.AddHttpContextAccessor() for
-        ///      this transformer to take affect.
         /// </summary>
+        /// <remarks>
+        /// Should also call services.AddHttpContextAccessor() for
+        /// this transformer to take affect.
+        /// </remarks>
         /// <param name="services">Service collection that we are extending</param>
         /// <returns>The same service collection for chaining</returns>
         public static IServiceCollection AddHtmlTransformationAntiForgeryToken(this IServiceCollection services)

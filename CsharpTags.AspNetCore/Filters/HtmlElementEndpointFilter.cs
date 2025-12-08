@@ -22,6 +22,9 @@ namespace CsharpTags.AspNetCore.Filters
     {
         private readonly IEnumerable<HtmlTransformer> _transformers;
 
+        /// <summary>
+        /// Base constructor
+        /// </summary>
         public HtmlElementEndpointFilter(IEnumerable<HtmlTransformer> transformers)
         {
             _transformers = transformers;

@@ -68,6 +68,15 @@ Having the CsharpTags.AspNetCore package you can register the filter Carter like
 var group = app.MapGroup(string.Empty).AddEndpointFilter<HtmlElementEndpointFilter>();
 group.MapCarter();
 ```
+
+For anti forgery tokens run this
+```csharp
+services.AddAntiforgery();
+services.AddHttpContextAccessor();
+services.AddHtmlTransformationAntiForgeryToken()
+```
+
+This is only going to work for HtmlElement that are processed by HtmlElementEndpointFilter
     
 
 ## Core Concepts

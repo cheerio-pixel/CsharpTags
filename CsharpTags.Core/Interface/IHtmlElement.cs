@@ -13,12 +13,28 @@ namespace CsharpTags.Core.Interface
         /// </summary>
         public abstract string Render();
 
+        /// <summary>
+        /// Transforms the HTML element tree by applying a transformation function to each element.
+        /// Uses a zipper data structure to efficiently traverse and modify the tree.
+        /// </summary>
+        /// <param name="map">A function that takes an HtmlElement and returns an Option&lt;HtmlElement&gt;.
+        /// The transformation is applied to each element in the tree. If the function returns None,
+        /// the element is removed; if it returns Some, the element is replaced with the new value.</param>
+        /// <returns>A new HtmlElement tree with the transformations applied.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HtmlElement Transform(Func<HtmlElement, Option<HtmlElement>> map)
         {
             return Zipper<HtmlZipperOps, Tag, HtmlElement>.Transform(this, map);
         }
 
+        /// <summary>
+        /// Transforms the HTML element tree by applying multiple transformation functions sequentially.
+        /// Each transformation is applied to the result of the previous transformation.
+        /// </summary>
+        /// <param name="mappers">A collection of transformation functions to apply sequentially.
+        /// Each function takes an HtmlElement and returns an Option&lt;HtmlElement&gt;.
+        /// Transformations are applied in the order they appear in the collection.</param>
+        /// <returns>A new HtmlElement tree with all transformations applied sequentially.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HtmlElement Transform(IEnumerable<Func<HtmlElement, Option<HtmlElement>>> mappers)
         {

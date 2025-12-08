@@ -595,7 +595,20 @@ namespace CsharpTags.Core.Types
                 current = current.Edit(map).GoNext();
             }
         }
-
+        /// <summary>
+        /// Transforms a zipper-based data structure by applying multiple transformation functions sequentially.
+        /// Each element in the structure is passed through all transformation functions, with each function
+        /// operating on the result of the previous transformation.
+        /// </summary>
+        /// <param name="start">The initial element to begin transformation from.</param>
+        /// <param name="mappers">A collection of transformation functions to apply sequentially.
+        /// Each function takes a <typeparamref name="TElement"/> and returns an <see cref="Option{TElement}"/>.
+        /// If a function returns None, the transformation chain stops for that element and no further mappers are applied.
+        /// If a function returns Some, the transformed value is passed to the next mapper.</param>
+        /// <returns>
+        /// A transformed <typeparamref name="TElement"/> after applying all mappers.
+        /// If the mappers collection is empty, returns the original <paramref name="start"/> element unchanged.
+        /// </returns>
         public static TElement Transform(TElement start, IEnumerable<Func<TElement, Option<TElement>>> mappers)
         {
             var mappersSeq = Seq(mappers);
@@ -606,7 +619,8 @@ namespace CsharpTags.Core.Types
 
             return Transform(start, map);
 
-            Option<TElement> map(TElement element) {
+            Option<TElement> map(TElement element)
+            {
                 var result = mappersSeq.Fold((LastApplied: element, IsChanged: false), (acc, it) =>
                         it(acc.LastApplied).Match(
                             Some: x => (LastApplied: x, IsChanged: true),
@@ -640,7 +654,11 @@ namespace CsharpTags.Core.Types
             return GetEnumerator();
         }
     }
-
+    /// <summary>
+    /// Provides zipper operations specifically for HTML element transformations.
+    /// Implements the <see cref="ZipOps{TBranch, TNode}"/> interface for HTML <see cref="Tag"/> branches
+    /// and <see cref="HtmlElement"/> nodes, enabling efficient tree traversal and manipulation.
+    /// </summary>
     public class HtmlZipperOps : ZipOps<Tag, HtmlElement>
     {
         /// <inheritdoc/>

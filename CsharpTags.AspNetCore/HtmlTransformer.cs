@@ -3,5 +3,8 @@ using LanguageExt;
 
 namespace CsharpTags.AspNetCore.Transformers
 {
-    internal record HtmlTransformer(Func<HtmlElement, Option<HtmlElement>> F);
+    /// <summary>
+    /// Alias for Transfomation function
+    /// </summary>
+    public record HtmlTransformer(Func<HtmlElement, Option<HtmlElement>> F);
 }
