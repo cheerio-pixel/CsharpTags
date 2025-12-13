@@ -432,6 +432,13 @@ namespace CsharpTags.Core.Types
             Encode = StringAsIsEncoder
         };
 
+        public static HtmlKey<string> On(string event)
+            => new()
+            {
+                Name = "on" + event,
+                Encode = StringAsIsEncoder
+            };
+
         /// <summary>
         /// Indicates whether the element's content is editable
         /// </summary>
