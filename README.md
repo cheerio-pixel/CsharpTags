@@ -24,21 +24,22 @@ using CsharpTags.Core.Types;
 using static CsharpTags.Core.Types.Prelude;
 
 // Create a simple HTML document
-var html = Html.Child(
-    Head.Child(
-        Title.Child("My Page"),
-        Meta.Attr(Charset << "UTF-8")
+var html = Html.New(
+    Head.New(
+        Title.New("My Page"),
+        Meta.New(Charset << "UTF-8")
     ),
-    Body.Child(
-        Div.Attr(Class << "container").Child(
-            H1.Child("Welcome to CsharpTags"),
-            P.Child("This is a type-safe HTML generation example."),
+    Body.New(
+        Div.New(
+            Class << "container",
+            H1.New("Welcome to CsharpTags"),
+            P.New("This is a type-safe HTML generation example."),
             RawStr("<p>This is raw html</p>"),
-            Button.Attr(
+            Button.New(
                 Id << "submit-btn",
                 Class << "btn btn-primary",
                 Disabled_ << false
-            ).Child("Click Me")
+            ).New("Click Me")
         )
     )
 );
@@ -86,9 +87,9 @@ This is only going to work for HtmlElement that are processed by HtmlElementEndp
 The library provides all standard HTML5 elements as static properties:
 
 ```csharp
-var div = Div.Child("Hello World");
-var link = A.Attr(Href << "/page.html").Child("Click here");
-var image = Img.Attr(Src << "photo.jpg", Alt << "A photo");
+var div = Div.New("Hello World");
+var link = A.New(Href << "/page.html", "Click here");
+var image = Img.New(Src << "photo.jpg", Alt << "A photo");
 ```
 
 ### Attributes
@@ -97,14 +98,14 @@ Type-safe attributes with proper encoding:
 
 ```csharp
 // String attributes (automatically encoded)
-var div = Div.Attr(Class << "container<test>"); // becomes class="container&lt;test&gt;"
+var div = Div.New(Class << "container<test>"); // becomes class="container&lt;test&gt;"
 
 // Boolean attributes (presence-based)
-var input = Input.Attr(Disabled_ << true); // becomes <input disabled />
-var input2 = Input.Attr(Disabled_ << false); // becomes <input />
+var input = Input.New(Disabled_ << true); // becomes <input disabled />
+var input2 = Input.New(Disabled_ << false); // becomes <input />
 
 // Integer attributes
-var input3 = Input.Attr(TabIndex << 5); // becomes tabindex="5"
+var input3 = Input.New(TabIndex << 5); // becomes tabindex="5"
 ```
 
 ### Text Content
@@ -123,12 +124,12 @@ Combine multiple elements:
 ```csharp
 var items = new HtmlElement[]
 {
-    Li.Child("Item 1"),
-    Li.Child("Item 2"),
-    Li.Child("Item 3")
+    Li.New("Item 1"),
+    Li.New("Item 2"),
+    Li.New("Item 3")
 };
 
-var list = Ul.Child(items.ToHtml());
+var list = Ul.New(items.ToHtml());
 ```
 
 ## Usage
@@ -147,7 +148,7 @@ var rotation = 45.Deg;     // "45deg"
 ### Custom Data Attributes
 
 ```csharp
-var element = Div.Attr(
+var element = Div.New(
     DataAttr("user-id") << "12345",
     DataAttr("role") << "admin"
 );
@@ -159,49 +160,49 @@ var element = Div.Attr(
 Full accessibility support:
 
 ```csharp
-var button = Button.Attr(
+var button = Button.New(
     Label << "Submit form",
     DescribedBy << "submit-help",
-    Disabled << false
-).Child("Submit");
+    Disabled << false,
+    "Submit");
 ```
 
 ### Building Complex Structures
 
 ```csharp
-var page = Html.Child(
-    Head.Child(
-        Title.Child("Product Page"),
-        Meta.Attr(Charset << "UTF-8"),
-        Link.Attr(
+var page = Html.New(
+    Head.New(
+        Title.New("Product Page"),
+        Meta.New(Charset << "UTF-8"),
+        Link.New(
             Rel << "stylesheet",
             Href << "/css/styles.css"
         )
     ),
-    Body.Child(
-        Header.Attr(Class << "site-header").Child(
-            Nav.Child(
-                Ul.Child(
-                    Li.Child(A.Attr(Href << "/").Child("Home")),
-                    Li.Child(A.Attr(Href << "/about").Child("About")),
-                    Li.Child(A.Attr(Href << "/contact").Child("Contact"))
+    Body.New(
+        Header.New(Class << "site-header").New(
+            Nav.New(
+                Ul.New(
+                    Li.New(A.New(Href << "/", "Home")),
+                    Li.New(A.New(Href << "/about", "About")),
+                    Li.New(A.New(Href << "/contact", "Contact"))
                 )
             )
         ),
-        Main.Child(
-            Article.Child(
-                H1.Child("Product Name"),
-                Img.Attr(
+        Main.New(
+            Article.New(
+                H1.New("Product Name"),
+                Img.New(
                     Src << "product.jpg",
                     Alt << "Product image",
                     Width_ << 400,
                     Height_ << 300
                 ),
-                P.Child("Product description..."),
-                Button.Attr(
+                P.New("Product description..."),
+                Button.New(
                     Class << "buy-btn",
-                    Id << "purchase-button"
-                ).Child("Add to Cart")
+                    Id << "purchase-button",
+                    "Add to Cart")
             )
         )
     )

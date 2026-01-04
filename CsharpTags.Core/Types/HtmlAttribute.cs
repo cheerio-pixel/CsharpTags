@@ -1,4 +1,6 @@
 using System.Net;
+using System.Runtime.CompilerServices;
+using CsharpTags.Core.Interface;
 
 namespace CsharpTags.Core.Types
 {
@@ -23,6 +25,11 @@ namespace CsharpTags.Core.Types
         public required Func<T, string?> Encode { get; init; }
 
         /// <summary>
+        /// If true the current key is going to return NoneAttr, otherwise behave as normal
+        /// </summary>
+        public bool IsVoid { get; init; } = false;
+
+        /// <summary>
         /// Binds a value to this attribute key, creating a concrete HtmlAttribute instance
         /// </summary>
         /// <param name="right">The value to bind to this attribute</param>
@@ -33,7 +40,7 @@ namespace CsharpTags.Core.Types
         /// // Results in: class="container"
         /// </code>
         /// </example>
-        public HtmlAttribute<T> Bind(T right)
+        public HtmlAttribute Bind(T right)
             => this << right;
 
         /// <summary>
@@ -48,34 +55,59 @@ namespace CsharpTags.Core.Types
         /// var disabledAttr = Prelude.Disabled_ &lt;&lt; true;
         /// </code>
         /// </example>
-        public static HtmlAttribute<T> operator <<(HtmlKey<T> left, T right)
-            => new()
+        public static HtmlAttribute operator <<(HtmlKey<T> left, T right)
+            => left.IsVoid ? Prelude.NoneAttr : new HtmlAttribute<T>()
             {
                 Key = left,
                 Value = right
             };
+
+        /// <summary>
+        /// Voids the html key if the current <paramref name="condition"/> is false.
+        /// </summary>
+        /// <param name="condition">The condition to test</param>
+        /// <returns>Voided html key if false</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HtmlKey<T> If(bool condition)
+            => condition ? this : this with { IsVoid = true };
     }
 
     /// <summary>
     /// Interface for renderable HTML attributes
     /// </summary>
-    public interface IHtmlAttribute
+    public abstract record HtmlAttribute : IHtml
     {
         /// <summary>
         /// Renders the attribute to its HTML string representation
         /// </summary>
         /// <returns>The HTML-encoded attribute string</returns>
-        public string Render();
+        public abstract string Render();
     }
 
+    /// <summary>
+    /// List of attrbutes
+    /// </summary>
+    public record ListAttribute : HtmlAttribute
+    {
+        /// <summary>
+        /// List attributes to decompress.
+        /// </summary>
+        public required Seq<HtmlAttribute> Attributes { get; init; }
+
+        /// <inheritdoc/>
+        public override string Render()
+        {
+            return Attributes.Fold("", (acc, it) => acc + " "+ it.Render());
+        }
+    }
 
     /// <summary>
     /// The attribute that renders to nothing.
     /// </summary>
-    public record EmptyAttribute : IHtmlAttribute
+    public record EmptyAttribute : HtmlAttribute
     {
         /// <inheritdoc/>
-        public string Render()
+        public override string Render()
         {
             return string.Empty;
         }
@@ -89,7 +121,7 @@ namespace CsharpTags.Core.Types
     /// <remarks>
     /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes"/> - MDN HTML Attribute Reference
     /// </remarks>
-    public record HtmlAttribute<T> : IHtmlAttribute
+    public record HtmlAttribute<T> : HtmlAttribute
     {
         /// <summary>
         /// The attribute key defining the attribute's name and encoding behavior
@@ -111,7 +143,7 @@ namespace CsharpTags.Core.Types
         /// Console.WriteLine(attr.Render()); // class="container"
         /// </code>
         /// </example>
-        public string Render()
+        public override string Render()
             => Key.Encode(Value) is {} value?
             value == string.Empty ?
             Key.Name
@@ -131,18 +163,18 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Singleton for easy access of the Empty attribute.
         /// </summary>
-        public static readonly IHtmlAttribute NoneAttr = new EmptyAttribute();
+        public static readonly HtmlAttribute NoneAttr = new EmptyAttribute();
 
         /// <summary>
         /// Helper for rendering the attribute if <paramref name="flag" /> is true
         /// </summary>
-        public static IHtmlAttribute RenderWhen(bool flag, IHtmlAttribute attr)
+        public static HtmlAttribute RenderWhen(bool flag, HtmlAttribute attr)
             => flag ? attr : NoneAttr;
 
         /// <summary>
         /// Helper for rendering the attribute if <paramref name="flag" /> is true. Lazy version.
         /// </summary>
-        public static IHtmlAttribute RenderWhen(bool flag, Func<IHtmlAttribute> attr)
+        public static HtmlAttribute RenderWhen(bool flag, Func<HtmlAttribute> attr)
             => flag ? attr() : NoneAttr;
 
         #region Encoding Functions
@@ -432,10 +464,10 @@ namespace CsharpTags.Core.Types
             Encode = StringAsIsEncoder
         };
 
-        public static HtmlKey<string> On(string event)
+        public static HtmlKey<string> On(string @event)
             => new()
             {
-                Name = "on" + event,
+                Name = "on" + @event,
                 Encode = StringAsIsEncoder
             };
 
@@ -490,7 +522,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies the height of the element in pixels
         /// </summary>
-        public readonly static HtmlKey<int> Height_ = new()
+        public readonly static HtmlKey<int> HeightAttr = new()
         {
             Name = "height",
             Encode = IntAsStringEncoder
@@ -520,7 +552,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies the maximum value for an input element
         /// </summary>
-        public readonly static HtmlKey<string> Max_ = new()
+        public readonly static HtmlKey<string> MaxAttr = new()
         {
             Name = "max",
             Encode = StringAsIsEncoder
@@ -529,7 +561,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies the minimum value for an input element
         /// </summary>
-        public readonly static HtmlKey<string> Min_ = new()
+        public readonly static HtmlKey<string> MinAttr = new()
         {
             Name = "min",
             Encode = StringAsIsEncoder
@@ -550,7 +582,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies the legal number intervals for an input element
         /// </summary>
-        public readonly static HtmlKey<string> Step_ = new()
+        public readonly static HtmlKey<string> StepAttr = new()
         {
             Name = "step",
             Encode = StringAsIsEncoder
@@ -564,7 +596,7 @@ namespace CsharpTags.Core.Types
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type"/> - MDN type attribute
         /// </remarks>
-        public readonly static HtmlKey<Either<InputType, string>> Type_ = EitherKey<InputType, string>(
+        public readonly static HtmlKey<Either<InputType, string>> TypeAttr = EitherKey<InputType, string>(
                 "type",
                 EnumAsKebabCaseEncoder,
                 StringAsIsEncoder
@@ -575,14 +607,14 @@ namespace CsharpTags.Core.Types
         /// either as the enum or a string, auto-casts to
         /// Either so no need to handle it yourself
         /// </summary>
-        public readonly static HtmlKey<Either<InputType, string>> Typ = Type_;
+        public readonly static HtmlKey<Either<InputType, string>> Typ = TypeAttr;
 
         /// <summary>
         /// Specifies the type of element (alias for Type_) can be assigned
         /// either as the enum or a string, auto-casts to
         /// Either so no need to handle it yourself
         /// </summary>
-        public readonly static HtmlKey<Either<InputType, string>> Tpe = Type_;
+        public readonly static HtmlKey<Either<InputType, string>> Tpe = TypeAttr;
 
         /// <summary>
         /// Specifies whether the text of an element can be selected
@@ -596,7 +628,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies the width of the element in pixels
         /// </summary>
-        public readonly static HtmlKey<int> Width_ = new()
+        public readonly static HtmlKey<int> WidthAttr = new()
         {
             Name = "width",
             Encode = IntAsStringEncoder
@@ -608,7 +640,7 @@ namespace CsharpTags.Core.Types
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id"/> - MDN id attribute
         /// </remarks>
-        public readonly static HtmlKey<string> Id_ = new()
+        public readonly static HtmlKey<string> IdAttr = new()
         {
             Name = "id",
             Encode = StringAsIsEncoder
@@ -634,7 +666,7 @@ namespace CsharpTags.Core.Types
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/style"/> - MDN style attribute
         /// </remarks>
-        public readonly static HtmlKey<string> Style = new()
+        public readonly static HtmlKey<string> StyleAttr = new()
         {
             Name = "style",
             Encode = StringAsIsEncoder
@@ -646,7 +678,7 @@ namespace CsharpTags.Core.Types
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title"/> - MDN title attribute
         /// </remarks>
-        public readonly static HtmlKey<string> Title_ = new()
+        public readonly static HtmlKey<string> TitleAttr = new()
         {
             Name = "title",
             Encode = StringAsIsEncoder
@@ -801,7 +833,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies that an input element should be pre-selected when the page loads (for checkboxes or radio buttons)
         /// </summary>
-        public readonly static HtmlKey<bool> Checked_ = new()
+        public readonly static HtmlKey<bool> CheckedAttr = new()
         {
             Name = "checked",
             Encode = BooleanPresenceEncoder
@@ -810,7 +842,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies that an input element should be disabled
         /// </summary>
-        public readonly static HtmlKey<bool> Disabled_ = new()
+        public readonly static HtmlKey<bool> DisabledAttr = new()
         {
             Name = "disabled",
             Encode = BooleanPresenceEncoder
@@ -945,7 +977,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies that an input field is read-only
         /// </summary>
-        public readonly static HtmlKey<bool> ReadOnly_ = new()
+        public readonly static HtmlKey<bool> ReadOnlyAttr = new()
         {
             Name = "readonly",
             Encode = BooleanPresenceEncoder
@@ -954,7 +986,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies that an input field must be filled out before submitting the form
         /// </summary>
-        public readonly static HtmlKey<bool> Required_ = new()
+        public readonly static HtmlKey<bool> RequiredAttr = new()
         {
             Name = "required",
             Encode = BooleanPresenceEncoder
@@ -1004,7 +1036,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Specifies that audio/video controls should be displayed
         /// </summary>
-        public readonly static HtmlKey<bool> Controls_ = new()
+        public readonly static HtmlKey<bool> ControlsAttr = new()
         {
             Name = "controls",
             Encode = BooleanPresenceEncoder
@@ -1461,7 +1493,7 @@ namespace CsharpTags.Core.Types
         /// <remarks>
         /// Reference: <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option#attr-selected"/> - MDN selected attribute
         /// </remarks>
-        public readonly static HtmlKey<bool> Selected_ = new()
+        public readonly static HtmlKey<bool> SelectedAttr = new()
         {
             Name = "selected",
             Encode = BooleanPresenceEncoder

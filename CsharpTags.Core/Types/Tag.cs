@@ -1,5 +1,6 @@
 using System.Text;
 using CsharpTags.Core.Interface;
+using LanguageExt.Traits;
 
 namespace CsharpTags.Core.Types
 {
@@ -31,10 +32,11 @@ namespace CsharpTags.Core.Types
         /// Gets or initializes the sequence of HTML attributes associated with this tag.
         /// </summary>
         /// <value>
-        /// A <see cref="LanguageExt.Seq{A}"/> of <see cref="IHtmlAttribute"/> objects representing the tag's attributes.
+        /// A <see cref="LanguageExt.Seq{A}"/> of <see cref="HtmlAttribute"/> objects representing the tag's attributes.
         /// Defaults to an empty sequence if not explicitly set.
         /// </value>
-        public Seq<IHtmlAttribute> Attributes { get; init; } = Seq<IHtmlAttribute>();
+        public Seq<HtmlAttribute> Attributes => Split.Item2;
+
         /// <summary>
         /// Gets or initializes the sequence of child elements contained within this tag.
         /// </summary>
@@ -42,43 +44,92 @@ namespace CsharpTags.Core.Types
         /// A <see cref="LanguageExt.Seq{A}"/> of <see cref="HtmlElement"/> objects representing the nested content.
         /// Defaults to an empty sequence if not explicitly set.
         /// </value>
-        public Seq<HtmlElement> Children { get; init; } = Seq<HtmlElement>();
+        public Seq<HtmlElement> Children => Split.Item1;
+
+        private (Seq<HtmlElement>, Seq<HtmlAttribute>)? _split;
+
+        /// <summary>
+        /// Get the split of children and attributes
+        /// </summary>
+        public (Seq<HtmlElement>, Seq<HtmlAttribute>) Split => _split ??= CalculateSplit();
+
+        private (Seq<HtmlElement>, Seq<HtmlAttribute>) CalculateSplit(Seq<IHtml>? content = null)
+        {
+            var elements = Seq<HtmlElement>();
+            var attributes = Seq<HtmlAttribute>();
+            foreach (var element in content ?? Content)
+            {
+                if (element is HtmlElement htmlElement)
+                {
+                    elements = elements.Add(htmlElement);
+                }
+                else if (element is HtmlAttribute attr)
+                {
+                    attributes = attributes.Add(attr);
+                }
+                else if (element is HtmlList list)
+                {
+                    // It is not that deep bro
+                    var (eles, attrs) = CalculateSplit(list.Value);
+                    elements += eles;
+                    attributes += attrs;
+                }
+                else
+                {
+                    throw new NotImplementedException(element.GetType().FullName);
+                }
+            }
+            return (elements, attributes);
+        }
 
         /// <summary>
         /// Set the attributes of this tag
         /// </summary>
-        public Tag Attr(params ReadOnlySpan<IHtmlAttribute> attrs)
-         => this with
-         {
-             Attributes = Seq(attrs)
-         };
+        [Obsolete("Attr is obsolete use New")]
+        public Tag Attr(params ReadOnlySpan<HtmlAttribute> attrs)
+            => New(Seq(attrs), Children);
 
         /// <summary>
         /// Set the children of this tag
         /// </summary>
+        [Obsolete("Child is obsolete use New")]
         public Tag Child(params ReadOnlySpan<HtmlElement> children)
-            => this with
-            {
-                Children = Seq(children)
-            };
+            => New(Attributes, Seq(children));
 
         /// <summary>
         /// Append the attributes to the already existing sequence of attributes of this tag
         /// </summary>
-        public Tag AppendAttr(params ReadOnlySpan<IHtmlAttribute> attrs)
-         => this with
-         {
-             Attributes = Attributes.Concat(attrs)
-         };
+        [Obsolete("AppendAttr is obsolete use New")]
+        public Tag AppendAttr(params ReadOnlySpan<HtmlAttribute> attrs)
+         => Append(attrs);
 
         /// <summary>
         /// Append the children to the already existing sequence of children of this tag
         /// </summary>
+        [Obsolete("AppendChild is obsolete use New")]
         public Tag AppendChild(params ReadOnlySpan<HtmlElement> children)
-            => this with
-            {
-                Children = Children.Concat(children)
-            };
+            => Append(children);
+
+        /// <summary>
+        /// Collection of Attributes and Child elements
+        /// </summary>
+        public Seq<IHtml> Content { get; init; } = Seq<IHtml>();
+
+        /// <summary>
+        /// Set the <see cref="Content"/> of this element.
+        /// </summary>
+        /// <param name="content">The html content</param>
+        /// <returns>The element with a new content</returns>
+        public Tag New(params ReadOnlySpan<IHtml> content)
+            => this with { Content = Seq(content) };
+
+        /// <summary>
+        /// Append content to this element.
+        /// </summary>
+        /// <param name="content">Content to append</param>
+        /// <returns>The element with appended content</returns>
+        public Tag Append(params ReadOnlySpan<IHtml> content)
+            => this with { Content = Content.Concat(Seq(content)) };
 
         /// <summary>
         /// Convert this Tag with attributes and children to a well formed html element
@@ -134,9 +185,9 @@ namespace CsharpTags.Core.Types
                                 RemainingChildren = childTag.Children
                             });
                         }
-                        else if (child is HtmlList childList)
+                        else if (child is HtmlElementList childList)
                         {
-                            state.RemainingChildren = Seq(childList.Value)
+                            state.RemainingChildren = childList.Value
                                 .Concat(state.RemainingChildren);
                         }
                         else if (child is HtmlConditionalRenderingBuilder builder)
@@ -221,7 +272,7 @@ namespace CsharpTags.Core.Types
         /// MDN Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
         /// </remarks>
 
-        public static readonly Tag Base_ = new() { TagName = "base", IsVoid = true };
+        public static readonly Tag BaseTag = new() { TagName = "base", IsVoid = true };
 
         /// <summary>
         /// The &lt;link&gt; HTML element specifies relationships between the current document and an external resource.
@@ -248,7 +299,7 @@ namespace CsharpTags.Core.Types
         /// MDN Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style
         /// </remarks>
 
-        public static readonly Tag Style_ = new() { TagName = "style", IsVoid = false };
+        public static readonly Tag StyleTag = new() { TagName = "style", IsVoid = false };
 
         #endregion
 
@@ -570,7 +621,7 @@ namespace CsharpTags.Core.Types
         /// MDN Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite
         /// </remarks>
 
-        public static readonly Tag Cite_ = new() { TagName = "cite", IsVoid = false };
+        public static readonly Tag CiteTag = new() { TagName = "cite", IsVoid = false };
 
         /// <summary>
         /// The &lt;q&gt; HTML element indicates that the enclosed text is a short inline quotation.
@@ -606,7 +657,7 @@ namespace CsharpTags.Core.Types
         /// MDN Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data
         /// </remarks>
 
-        public static readonly Tag Data_ = new() { TagName = "data", IsVoid = false };
+        public static readonly Tag DataTag = new() { TagName = "data", IsVoid = false };
 
         /// <summary>
         /// The &lt;time&gt; HTML element represents a specific period in time.
@@ -884,7 +935,7 @@ namespace CsharpTags.Core.Types
         /// MDN Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object
         /// </remarks>
 
-        public static readonly Tag Object_ = new() { TagName = "object", IsVoid = false };
+        public static readonly Tag ObjectTag = new() { TagName = "object", IsVoid = false };
 
         /// <summary>
         /// The &lt;param&gt; HTML element defines parameters for an &lt;object&gt; element.
@@ -1071,7 +1122,7 @@ namespace CsharpTags.Core.Types
         /// MDN Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label
         /// </remarks>
 
-        public static readonly Tag Label_ = new() { TagName = "label", IsVoid = false };
+        public static readonly Tag LabelTag = new() { TagName = "label", IsVoid = false };
 
         /// <summary>
         /// The &lt;input&gt; HTML element is used to create interactive controls for web-based forms in order to accept data from the user.

@@ -680,7 +680,7 @@ namespace CsharpTags.Core.Types
         /// <inheritdoc/>
         public static HtmlElement MakeNode(Tag branch, Seq<HtmlElement> children)
         {
-            return branch.Child(children);
+            return branch.New(branch.Attributes, children);
         }
     }
 }
