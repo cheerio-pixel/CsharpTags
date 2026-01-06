@@ -464,11 +464,17 @@ namespace CsharpTags.Core.Types
             Encode = StringAsIsEncoder
         };
 
+        /// <summary>
+        /// Make a new HtmlKey for <paramref name="event"/>
+        /// </summary>
+        /// <remarks>
+        /// The content of this attribute doesn't get escaped
+        /// </remarks>
         public static HtmlKey<string> On(string @event)
             => new()
             {
                 Name = "on" + @event,
-                Encode = StringAsIsEncoder
+                Encode = a => a
             };
 
         /// <summary>
