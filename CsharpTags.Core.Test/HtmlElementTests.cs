@@ -1,6 +1,7 @@
 using CsharpTags.Core.Interface;
 using CsharpTags.Core.Types;
 using static CsharpTags.Core.Types.Prelude;
+using static LanguageExt.Prelude;
 
 namespace CsharpTags.Core.Tests;
 
@@ -36,13 +37,12 @@ public class HtmlElementTests
     public void List_Render_ConcatenatesElements()
     {
         // Arrange
-        var elements = new HtmlElement[]
-        {
-            new Str { Value = "Hello" },
-            new Str { Value = "World" }
-        };
+        var elements = Seq<HtmlElement>(
+                new Str { Value = "Hello" },
+                new Str { Value = "World" }
+                );
 
-        var list = new HtmlList { Value = elements };
+        var list = new HtmlElementList { Value = elements };
 
         // Act
         var result = list.Render();

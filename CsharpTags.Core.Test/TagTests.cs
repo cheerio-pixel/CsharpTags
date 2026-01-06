@@ -23,7 +23,7 @@ public class TagTests
     public void Tag_Render_WithAttributes()
     {
         // Arrange
-        var div = Div.Attr(Class << "container", Id_ << "main");
+        var div = Div.New(Class << "container", Id_ << "main");
 
         // Act
         var result = div.Render();
@@ -36,9 +36,9 @@ public class TagTests
     public void Tag_Render_WithChildren()
     {
         // Arrange
-        var div = Div.Child(
-            H1.Child("Hello World"),
-            P.Child("This is a paragraph")
+        var div = Div.New(
+            H1.New("Hello World"),
+            P.New("This is a paragraph")
         );
 
         // Act
@@ -52,7 +52,7 @@ public class TagTests
     public void Tag_Render_VoidTag()
     {
         // Arrange
-        var img = Img.Attr(Src << "image.jpg", Alt << "An image");
+        var img = Img.New(Src << "image.jpg", Alt << "An image");
 
         // Act
         var result = img.Render();
@@ -65,15 +65,15 @@ public class TagTests
     public void Tag_Render_NestedStructure()
     {
         // Arrange
-        var html = Html.Child(
-            Head.Child(
-                Title.Child("Test Page"),
-                Meta.Attr(Charset << "UTF-8")
+        var html = Html.New(
+            Head.New(
+                Title.New("Test Page"),
+                Meta.New(Charset << "UTF-8")
             ),
-            Body.Child(
-                Div.Attr(Class << "container").Child(
-                    H1.Child("Welcome"),
-                    P.Child("This is a test page.")
+            Body.New(
+                Div.New(Class << "container",
+                    H1.New("Welcome"),
+                    P.New("This is a test page.")
                 )
             )
         );
@@ -94,8 +94,8 @@ public class TagTests
     public void Tag_AppendAttributes_AddsToExisting()
     {
         // Arrange
-        var div = Div.Attr(Class << "container");
-        var divWithId = div.AppendAttr(Id_ << "main");
+        var div = Div.New(Class << "container");
+        var divWithId = div.Append(Id_ << "main");
 
         // Act
         var result = divWithId.Render();
@@ -108,8 +108,8 @@ public class TagTests
     public void Tag_AppendChildren_AddsToExisting()
     {
         // Arrange
-        var div = Div.Child(H1.Child("Title"));
-        var divWithParagraph = div.AppendChild(P.Child("Content"));
+        var div = Div.New(H1.New("Title"));
+        var divWithParagraph = div.Append(P.New("Content"));
 
         // Act
         var result = divWithParagraph.Render();
@@ -124,12 +124,12 @@ public class TagTests
         // Arrange
         var items = new HtmlElement[]
         {
-            Li.Child("Item 1"),
-            Li.Child("Item 2"),
-            Li.Child("Item 3")
+            Li.New("Item 1"),
+            Li.New("Item 2"),
+            Li.New("Item 3")
         };
 
-        var ul = Ul.Child(items.ToHtml());
+        var ul = Ul.New(items.ToHtml());
 
         // Act
         var result = ul.Render();

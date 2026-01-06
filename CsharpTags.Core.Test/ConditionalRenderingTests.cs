@@ -7,22 +7,22 @@ namespace CsharpTags.Core.Test
     public class ConditionalRenderingTests
     {
         private HtmlElement Counter(int value)
-            => Input.Attr(Tpe << InputType.Hidden, Value << value.ToString(), Name << value.ToString());
+            => Input.New(Tpe << InputType.Hidden, Value << value.ToString(), Name << value.ToString());
 
         [Fact]
         public void Tag_ConditionalRender_FirstConditionTrue()
         {
-            var ele = IfH(true, () => Div.Child(Counter(1)))
+            var ele = IfH(true, () => Div.New(Counter(1)))
                 .ElseIf(() => true, () => Counter(2))
                 .Else(() => Counter(3));
 
-            Assert.Equal(Div.Child(Counter(1)), ele);
+            Assert.Equal(Div.New(Counter(1)), ele);
         }
 
         [Fact]
         public void Tag_ConditionalRender_SecondConditionTrue()
         {
-            var ele = IfH(false, () => Div.Child(Counter(1)))
+            var ele = IfH(false, () => Div.New(Counter(1)))
                 .ElseIf(() => true, () => Counter(2))
                 .Else(() => Counter(3));
 
@@ -32,7 +32,7 @@ namespace CsharpTags.Core.Test
         [Fact]
         public void Tag_ConditionalRender_AllConditionsFalse()
         {
-            var ele = IfH(false, () => Div.Child(Counter(1)))
+            var ele = IfH(false, () => Div.New(Counter(1)))
                 .ElseIf(() => false, () => Counter(2))
                 .Else(() => Counter(3));
 
@@ -70,10 +70,10 @@ namespace CsharpTags.Core.Test
         [Fact]
         public void Tag_ConditionalRender_ComplexElements()
         {
-            var complexElement = Div.Child(
-                Span.Child("Hello"),
+            var complexElement = Div.New(
+                Span.New("Hello"),
                 Counter(1),
-                P.Child("World")
+                P.New("World")
             );
 
             var ele = IfH(true, () => complexElement)
@@ -121,11 +121,11 @@ namespace CsharpTags.Core.Test
         public void Tag_ConditionalRender_WithAttributes()
         {
             var ele = IfH(true,
-                    () => Input.Attr(Tpe << InputType.Text, Value << "test", Name << "field1")
+                    () => Input.New(Tpe << InputType.Text, Value << "test", Name << "field1")
                 )
-                .Else(() => Input.Attr(Tpe << InputType.Hidden, Value << "fallback", Name << "field2"));
+                .Else(() => Input.New(Tpe << InputType.Hidden, Value << "fallback", Name << "field2"));
 
-            var expected = Input.Attr(Tpe << InputType.Text, Value << "test", Name << "field1");
+            var expected = Input.New(Tpe << InputType.Text, Value << "test", Name << "field1");
             Assert.Equal(expected, ele);
         }
     }

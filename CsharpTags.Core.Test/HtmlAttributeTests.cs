@@ -22,7 +22,7 @@ public class HtmlAttributeTests
     public void BooleanPresenceAttribute_Render_True_RendersName()
     {
         // Arrange
-        var attr = Disabled_ << true;
+        var attr = DisabledAttr << true;
 
         // Act
         var result = attr.Render();
@@ -35,7 +35,7 @@ public class HtmlAttributeTests
     public void BooleanPresenceAttribute_Render_False_RendersEmpty()
     {
         // Arrange
-        var attr = Disabled_ << false;
+        var attr = DisabledAttr << false;
 
         // Act
         var result = attr.Render();
