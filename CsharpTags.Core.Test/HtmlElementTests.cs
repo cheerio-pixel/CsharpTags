@@ -65,7 +65,7 @@ public class HtmlElementTests
         var list = elements.ToHtml();
 
         // Assert
-        Assert.IsType<HtmlList>(list);
+        Assert.IsType<HtmlElementList>(list);
         Assert.Equal("Item1Item2", list.Render());
     }
 }

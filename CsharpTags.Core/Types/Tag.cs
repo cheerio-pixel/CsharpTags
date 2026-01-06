@@ -110,10 +110,18 @@ namespace CsharpTags.Core.Types
         public Tag AppendChild(params ReadOnlySpan<HtmlElement> children)
             => Append(children);
 
+        private Seq<IHtml> _content;
+
         /// <summary>
         /// Collection of Attributes and Child elements
         /// </summary>
-        public Seq<IHtml> Content { get; init; } = Seq<IHtml>();
+        public Seq<IHtml> Content {
+            get { return _content; }
+            init {
+                // Invalid cache when new content is set
+                _split = null;
+                _content = value;
+        } }
 
         /// <summary>
         /// Set the <see cref="Content"/> of this element.
