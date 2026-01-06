@@ -40,5 +40,87 @@ namespace CsharpTags.Core.Interface
         {
             return Zipper<HtmlZipperOps, Tag, HtmlElement>.Transform(this, mappers);
         }
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(string v) => new Str()
+        {
+            Value = v
+        };
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(int v) => new Str()
+        {
+            Value = v.ToString()
+        };
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(long v) => new Str()
+        {
+            Value = v.ToString()
+        };
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(double v) => new Str()
+        {
+            Value = v.ToString()
+        };
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(float v) => new Str()
+        {
+            Value = v.ToString()
+        };
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(decimal v) => new Str()
+        {
+            Value = v.ToString()
+        };
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(DateTime v) => new Str()
+        {
+            Value = v.ToString()
+        };
+
+        /// <summary>
+        /// Use Str to convert to element
+        /// </summary>
+        public static implicit operator HtmlElement(Guid v) => new Str()
+        {
+            Value = v.ToString()
+        };
+
+        /// <summary>
+        /// Convert seq to element
+        /// </summary>
+        public static implicit operator HtmlElement(Seq<HtmlElement> v)
+            => new HtmlElementList()
+            {
+                Value = v
+            };
+
+        /// <summary>
+        /// Convert list to element
+        /// </summary>
+        public static implicit operator HtmlElement(List<HtmlElement> v)
+            => new HtmlElementList()
+            {
+                Value = Seq(v.AsEnumerable())
+            };
     }
 }
