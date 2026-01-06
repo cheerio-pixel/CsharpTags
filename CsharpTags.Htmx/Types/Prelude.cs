@@ -381,7 +381,7 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public readonly static HtmlAttribute<string> HxTargetThis = HxTarget << "this";
+        public readonly static HtmlAttribute HxTargetThis = HxTarget << "this";
 
         /// <summary>
         /// Specifies the target element to swap the response into.
@@ -393,7 +393,7 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public static HtmlAttribute<string> HxTargetClosest(string cssSelector) => HxTarget << "closest " + cssSelector;
+        public static HtmlAttribute HxTargetClosest(string cssSelector) => HxTarget << "closest " + cssSelector;
 
         /// <summary>
         /// Specifies the target element to swap the response into.
@@ -403,7 +403,7 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public static HtmlAttribute<string> HxTargetFind(string cssSelector) => HxTarget << "find " + cssSelector;
+        public static HtmlAttribute HxTargetFind(string cssSelector) => HxTarget << "find " + cssSelector;
 
         /// <summary>
         /// Specifies the target element to swap the response into.
@@ -412,7 +412,7 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public readonly static HtmlAttribute<string> HxTargetNext_ = HxTarget << "next";
+        public readonly static HtmlAttribute HxTargetNext_ = HxTarget << "next";
 
         /// <summary>
         /// Specifies the target element to swap the response into.
@@ -423,7 +423,7 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public static HtmlAttribute<string> HxTargetNext(string cssSelector) => HxTarget << "next " + cssSelector;
+        public static HtmlAttribute HxTargetNext(string cssSelector) => HxTarget << "next " + cssSelector;
 
         /// <summary>
         /// Specifies the target element to swap the response into.
@@ -432,7 +432,7 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public readonly static HtmlAttribute<string> HxTargetPrevious_ = HxTarget << "previous";
+        public readonly static HtmlAttribute HxTargetPrevious_ = HxTarget << "previous";
 
         /// <summary>
         /// Specifies the target element to swap the response into.
@@ -443,7 +443,7 @@ namespace CsharpTags.Htmx.Types
         /// <remarks>
         /// Reference: <see href="https://htmx.org/attributes/hx-target/"/> - HTMX hx-target attribute
         /// </remarks>
-        public static HtmlAttribute<string> HxTargetPrevious(string cssSelector) => HxTarget << "previous " + cssSelector;
+        public static HtmlAttribute HxTargetPrevious(string cssSelector) => HxTarget << "previous " + cssSelector;
 
         /// <summary>
         /// Specifies how the response will be swapped in relative to the target
