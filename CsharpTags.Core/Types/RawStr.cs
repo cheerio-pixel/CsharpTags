@@ -17,6 +17,12 @@ namespace CsharpTags.Core.Types
         {
             return Value;
         }
+
+        /// <inheritdoc/>
+        public override Seq<HtmlElement> Unwrap()
+        {
+            return [this];
+        }
     }
 
     public static partial class Prelude

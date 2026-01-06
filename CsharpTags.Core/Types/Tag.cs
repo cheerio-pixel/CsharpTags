@@ -61,11 +61,11 @@ namespace CsharpTags.Core.Types
             {
                 if (element is HtmlElement htmlElement)
                 {
-                    elements = elements.Add(htmlElement);
+                    elements += htmlElement.Unwrap();
                 }
                 else if (element is HtmlAttribute attr)
                 {
-                    attributes = attributes.Add(attr);
+                    attributes += attr.Unwrap();
                 }
                 else if (element is HtmlList list)
                 {
@@ -130,6 +130,12 @@ namespace CsharpTags.Core.Types
         /// <returns>The element with appended content</returns>
         public Tag Append(params ReadOnlySpan<IHtml> content)
             => this with { Content = Content.Concat(Seq(content)) };
+
+        /// <inheritdoc/>
+        public override Seq<HtmlElement> Unwrap()
+        {
+            return [this];
+        }
 
         /// <summary>
         /// Convert this Tag with attributes and children to a well formed html element

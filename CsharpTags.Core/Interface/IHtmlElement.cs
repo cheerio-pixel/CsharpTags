@@ -9,6 +9,10 @@ namespace CsharpTags.Core.Interface
     public abstract record HtmlElement : IHtml
     {
         /// <summary>
+        /// Unwrap this possoible wrap over a Tag or other simple html element
+        /// </summary>
+        public abstract Seq<HtmlElement> Unwrap();
+        /// <summary>
         /// Convert this Virtual DOM element into its string representation.
         /// </summary>
         public abstract string Render();

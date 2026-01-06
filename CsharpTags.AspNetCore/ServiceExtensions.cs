@@ -56,7 +56,7 @@ namespace CsharpTags.AspNetCore
                             && Enumerable.Contains(tag.Attributes, tokenName)
                             ))
                 {
-                    return form.AppendChild(Input.Attr(
+                    return form.Append(Input.New(
                                 tokenName,
                                 Value << token.RequestToken!,
                                 Tpe << InputType.Hidden

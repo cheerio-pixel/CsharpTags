@@ -78,6 +78,11 @@ namespace CsharpTags.Core.Types
     public abstract record HtmlAttribute : IHtml
     {
         /// <summary>
+        /// Convert this possibly wrapped HtmlAttribute
+        /// </summary>
+        public abstract Seq<HtmlAttribute> Unwrap();
+
+        /// <summary>
         /// Renders the attribute to its HTML string representation
         /// </summary>
         /// <returns>The HTML-encoded attribute string</returns>
@@ -99,6 +104,12 @@ namespace CsharpTags.Core.Types
         {
             return Attributes.Fold("", (acc, it) => acc + " "+ it.Render());
         }
+
+        /// <inheritdoc/>
+        public override Seq<HtmlAttribute> Unwrap()
+        {
+            return Attributes.Bind(x => x.Unwrap());
+        }
     }
 
     /// <summary>
@@ -110,6 +121,12 @@ namespace CsharpTags.Core.Types
         public override string Render()
         {
             return string.Empty;
+        }
+
+        /// <inheritdoc/>
+        public override Seq<HtmlAttribute> Unwrap()
+        {
+            return Seq<HtmlAttribute>();
         }
     }
 
@@ -149,6 +166,12 @@ namespace CsharpTags.Core.Types
             Key.Name
             : (Key.Name + "=\"" + value + "\"")
             : string.Empty;
+
+        /// <inheritdoc/>
+        public override Seq<HtmlAttribute> Unwrap()
+        {
+            return Seq<HtmlAttribute>(this);
+        }
     }
 
     /// <summary>

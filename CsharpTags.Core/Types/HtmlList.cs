@@ -21,6 +21,12 @@ namespace CsharpTags.Core.Types
                     (acc, it) => acc.Append(it.Render()))
                 .ToString();
         }
+
+        /// <inheritdoc/>
+        public override Seq<HtmlElement> Unwrap()
+        {
+            return Value;
+        }
     }
 
     public static partial class Prelude
