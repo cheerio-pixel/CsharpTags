@@ -126,5 +126,95 @@ namespace CsharpTags.Core.Interface
             {
                 Value = Seq(v.AsEnumerable())
             };
+
+        /// <summary>
+        /// Convert seq to element
+        /// </summary>
+        public static implicit operator HtmlElement(Seq<Tag> v)
+            => new HtmlElementList()
+            {
+                Value = v.Cast<HtmlElement>()
+            };
+
+        /// <summary>
+        /// Convert list to element
+        /// </summary>
+        public static implicit operator HtmlElement(List<Tag> v)
+            => new HtmlElementList()
+            {
+                Value = Seq(v.Cast<HtmlElement>())
+            };
+
+        /// <summary>
+        /// Convert seq to element
+        /// </summary>
+        public static implicit operator HtmlElement(Seq<Str> v)
+            => new HtmlElementList()
+            {
+                Value = v.Cast<HtmlElement>()
+            };
+
+        /// <summary>
+        /// Convert list to element
+        /// </summary>
+        public static implicit operator HtmlElement(List<Str> v)
+            => new HtmlElementList()
+            {
+                Value = Seq(v.Cast<HtmlElement>())
+            };
+
+        /// <summary>
+        /// Convert seq to element
+        /// </summary>
+        public static implicit operator HtmlElement(Seq<RawStr> v)
+            => new HtmlElementList()
+            {
+                Value = v.Cast<HtmlElement>()
+            };
+
+        /// <summary>
+        /// Convert list to element
+        /// </summary>
+        public static implicit operator HtmlElement(List<RawStr> v)
+            => new HtmlElementList()
+            {
+                Value = Seq(v.Cast<HtmlElement>())
+            };
+
+        /// <summary>
+        /// Convert seq to element
+        /// </summary>
+        public static implicit operator HtmlElement(Seq<HtmlElementList> v)
+            => new HtmlElementList()
+            {
+                Value = v.Cast<HtmlElement>()
+            };
+
+        /// <summary>
+        /// Convert list to element
+        /// </summary>
+        public static implicit operator HtmlElement(List<HtmlElementList> v)
+            => new HtmlElementList()
+            {
+                Value = Seq(v.Cast<HtmlElement>())
+            };
+
+        /// <summary>
+        /// Convert seq to element
+        /// </summary>
+        public static implicit operator HtmlElement(Seq<HtmlConditionalRenderingBuilder> v)
+            => new HtmlElementList()
+            {
+                Value = v.Cast<HtmlElement>()
+            };
+
+        /// <summary>
+        /// Convert list to element
+        /// </summary>
+        public static implicit operator HtmlElement(List<HtmlConditionalRenderingBuilder> v)
+            => new HtmlElementList()
+            {
+                Value = Seq(v.Cast<HtmlElement>())
+            };
     }
 }
