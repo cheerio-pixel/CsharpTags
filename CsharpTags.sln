@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsharpTags.Htmx", "CsharpTa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsharpTags.Carter", "CsharpTags.Carter\CsharpTags.Carter.csproj", "{EB5A1DE8-9117-412F-A463-92DF73572FC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsharpTags.Benchmarks", "CsharpTags.Benchmarks\CsharpTags.Benchmarks.csproj", "{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{EB5A1DE8-9117-412F-A463-92DF73572FC8}.Release|x64.Build.0 = Release|Any CPU
 		{EB5A1DE8-9117-412F-A463-92DF73572FC8}.Release|x86.ActiveCfg = Release|Any CPU
 		{EB5A1DE8-9117-412F-A463-92DF73572FC8}.Release|x86.Build.0 = Release|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Debug|x64.Build.0 = Debug|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Debug|x86.Build.0 = Debug|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Release|x64.ActiveCfg = Release|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Release|x64.Build.0 = Release|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Release|x86.ActiveCfg = Release|Any CPU
+		{3CF1F0B4-DCFA-47A3-BBAD-750C2A30961F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
