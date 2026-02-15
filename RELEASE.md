@@ -4,27 +4,40 @@ This document describes how to release new versions of CsharpTags packages to Nu
 
 ## Prerequisites
 
-This repository uses **Trusted Publishing** (OIDC) to authenticate with NuGet.org. No API keys are required!
+This repository uses **Trusted Publishing** (OIDC) to authenticate with NuGet.org. No long-lived API keys are required!
 
 ### Setup Trusted Publishing
 
 You need to configure Trusted Publishing for each package on NuGet.org:
 
 1. Go to [nuget.org](https://www.nuget.org/) and sign in
-2. Navigate to each package:
-   - [CsharpTags.Core](https://www.nuget.org/packages/CsharpTags.Core)
-   - [CsharpTags.Htmx](https://www.nuget.org/packages/CsharpTags.Htmx)
-   - [CsharpTags.AspNetCore](https://www.nuget.org/packages/CsharpTags.AspNetCore)
-   - [CsharpTags.Carter](https://www.nuget.org/packages/CsharpTags.Carter)
-3. Click **"Manage"** → **"Trusted Publishing"**
-4. Click **"Add New Workflow"**
-5. Configure:
-   - **Repository**: `cheerio-pixel/CsharpTags`
-   - **Workflow**: `publish.yml`
-   - **Branch**: `refs/tags/v*` (or leave default)
-6. Click **"Add"**
+2. Click your username → **"Trusted Publishing"**
+3. Click **"Add New Workflow"**
+4. Configure for each package:
+   - **Repository Owner**: `cheerio-pixel`
+   - **Repository**: `CsharpTags`
+   - **Workflow File**: `publish.yml` (filename only, no path)
+   - **Environment**: (leave empty unless using GitHub environments)
+5. Click **"Add"**
 
-Repeat for all 4 packages. Once configured, the GitHub Actions workflow can publish without API keys!
+Repeat for all 4 packages:
+- CsharpTags.Core
+- CsharpTags.Htmx  
+- CsharpTags.AspNetCore
+- CsharpTags.Carter
+
+### Setup GitHub Repository Variable (Optional)
+
+The workflow uses your NuGet.org username. You can set this as a repository variable:
+
+1. Go to your repository on GitHub
+2. Navigate to **Settings** → **Secrets and variables** → **Actions**
+3. Click **Variables** tab → **New repository variable**
+4. Name: `NUGET_USER`
+5. Value: Your NuGet.org username (profile name, not email)
+6. Click **Add variable**
+
+If not set, the workflow will use an empty username which still works with Trusted Publishing.
 
 ## Release Methods
 
@@ -123,8 +136,9 @@ You can monitor the release progress:
 
 ### "401 Unauthorized" or "Trusted Publishing is not enabled"
 - Make sure Trusted Publishing is configured on NuGet.org for each package
-- Verify the repository and workflow name match exactly
+- Verify the repository owner, repository name, and workflow filename match exactly
 - Check that the `id-token: write` permission is set in the workflow
+- Ensure the workflow file name is entered without path (just `publish.yml`, not `.github/workflows/publish.yml`)
 
 ### Build or test failures
 - Check the CI workflow logs for details

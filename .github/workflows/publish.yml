@@ -80,16 +80,18 @@ jobs:
         name: nuget-packages-${{ steps.get_version.outputs.VERSION }}
         path: ./packages/*.nupkg
     
-    - name: Publish to NuGet.org
+    - name: Login to NuGet.org (Trusted Publishing)
+      uses: NuGet/login@v1
+      id: nuget_login
+      with:
+        user: ${{ vars.NUGET_USER }}
+    
+    - name: Publish packages to NuGet
       run: |
-        # With Trusted Publishing configured, no API key is needed
-        # NuGet.org will validate the OIDC token from GitHub Actions
         dotnet nuget push ./packages/*.nupkg \
+          --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} \
           --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
-      env:
-        # DOTNET_NUGET_SIGNATURE_VERIFICATION should be set to avoid signature issues
-        DOTNET_NUGET_SIGNATURE_VERIFICATION: false
     
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
