@@ -4,24 +4,27 @@ This document describes how to release new versions of CsharpTags packages to Nu
 
 ## Prerequisites
 
-Before you can publish packages, you need to:
+This repository uses **Trusted Publishing** (OIDC) to authenticate with NuGet.org. No API keys are required!
 
-1. **Get a NuGet API Key**:
-   - Go to [nuget.org](https://www.nuget.org/)
-   - Sign in to your account
-   - Go to **API Keys** → **Create**
-   - Give it a name (e.g., "GitHub Actions")
-   - Select packages to publish (or use "Push new packages and package versions")
-   - Set expiration as needed
-   - Copy the generated key
+### Setup Trusted Publishing
 
-2. **Add the API Key to GitHub**:
-   - Go to your repository on GitHub
-   - Navigate to **Settings** → **Secrets and variables** → **Actions**
-   - Click **New repository secret**
-   - Name: `NUGET_API_KEY`
-   - Value: Paste your NuGet API key
-   - Click **Add secret**
+You need to configure Trusted Publishing for each package on NuGet.org:
+
+1. Go to [nuget.org](https://www.nuget.org/) and sign in
+2. Navigate to each package:
+   - [CsharpTags.Core](https://www.nuget.org/packages/CsharpTags.Core)
+   - [CsharpTags.Htmx](https://www.nuget.org/packages/CsharpTags.Htmx)
+   - [CsharpTags.AspNetCore](https://www.nuget.org/packages/CsharpTags.AspNetCore)
+   - [CsharpTags.Carter](https://www.nuget.org/packages/CsharpTags.Carter)
+3. Click **"Manage"** → **"Trusted Publishing"**
+4. Click **"Add New Workflow"**
+5. Configure:
+   - **Repository**: `cheerio-pixel/CsharpTags`
+   - **Workflow**: `publish.yml`
+   - **Branch**: `refs/tags/v*` (or leave default)
+6. Click **"Add"**
+
+Repeat for all 4 packages. Once configured, the GitHub Actions workflow can publish without API keys!
 
 ## Release Methods
 
@@ -114,13 +117,14 @@ You can monitor the release progress:
 
 ## Troubleshooting
 
-### "No API Key provided"
-- Make sure `NUGET_API_KEY` is set in repository secrets
-- The secret name must be exactly `NUGET_API_KEY`
-
 ### "Package already exists"
 - You cannot overwrite an existing version on NuGet.org
 - Bump the version number and try again
+
+### "401 Unauthorized" or "Trusted Publishing is not enabled"
+- Make sure Trusted Publishing is configured on NuGet.org for each package
+- Verify the repository and workflow name match exactly
+- Check that the `id-token: write` permission is set in the workflow
 
 ### Build or test failures
 - Check the CI workflow logs for details
