@@ -1,0 +1,93 @@
+name: Publish to NuGet
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+    
+    - name: Extract version from tag
+      id: get_version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Publishing version: $VERSION"
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    
+    - name: Pack CsharpTags.Core
+      run: |
+        dotnet pack CsharpTags.Core/CsharpTags.Core.csproj \
+          --no-build \
+          --configuration Release \
+          --output ./packages \
+          -p:Version=${{ steps.get_version.outputs.VERSION }}
+    
+    - name: Pack CsharpTags.Htmx
+      run: |
+        dotnet pack CsharpTags.Htmx/CsharpTags.Htmx.csproj \
+          --no-build \
+          --configuration Release \
+          --output ./packages \
+          -p:Version=${{ steps.get_version.outputs.VERSION }}
+    
+    - name: Pack CsharpTags.AspNetCore
+      run: |
+        dotnet pack CsharpTags.AspNetCore/CsharpTags.AspNetCore.csproj \
+          --no-build \
+          --configuration Release \
+          --output ./packages \
+          -p:Version=${{ steps.get_version.outputs.VERSION }}
+    
+    - name: Pack CsharpTags.Carter
+      run: |
+        dotnet pack CsharpTags.Carter/CsharpTags.Carter.csproj \
+          --no-build \
+          --configuration Release \
+          --output ./packages \
+          -p:Version=${{ steps.get_version.outputs.VERSION }}
+    
+    - name: Upload packages as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages-${{ steps.get_version.outputs.VERSION }}
+        path: ./packages/*.nupkg
+    
+    - name: Publish to NuGet.org
+      run: |
+        dotnet nuget push ./packages/*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./packages/*.nupkg
+        generate_release_notes: true
+        name: Release ${{ steps.get_version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

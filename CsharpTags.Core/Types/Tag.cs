@@ -82,6 +82,7 @@ namespace CsharpTags.Core.Types
             return (elements, attributes);
         }
 
+#if NET10_0_OR_GREATER
         /// <summary>
         /// Set the attributes of this tag
         /// </summary>
@@ -109,6 +110,35 @@ namespace CsharpTags.Core.Types
         [Obsolete("AppendChild is obsolete use New")]
         public Tag AppendChild(params ReadOnlySpan<HtmlElement> children)
             => Append(children);
+#else
+        /// <summary>
+        /// Set the attributes of this tag
+        /// </summary>
+        [Obsolete("Attr is obsolete use New")]
+        public Tag Attr(params HtmlAttribute[] attrs)
+            => New(Seq(attrs.AsEnumerable()), Children);
+
+        /// <summary>
+        /// Set the children of this tag
+        /// </summary>
+        [Obsolete("Child is obsolete use New")]
+        public Tag Child(params HtmlElement[] children)
+            => New(Attributes, Seq(children.AsEnumerable()));
+
+        /// <summary>
+        /// Append the attributes to the already existing sequence of attributes of this tag
+        /// </summary>
+        [Obsolete("AppendAttr is obsolete use New")]
+        public Tag AppendAttr(params HtmlAttribute[] attrs)
+         => Append(attrs);
+
+        /// <summary>
+        /// Append the children to the already existing sequence of children of this tag
+        /// </summary>
+        [Obsolete("AppendChild is obsolete use New")]
+        public Tag AppendChild(params HtmlElement[] children)
+            => Append(children);
+#endif
 
         private Seq<IHtml> _content;
 
@@ -123,6 +153,7 @@ namespace CsharpTags.Core.Types
                 _content = value;
         } }
 
+#if NET10_0_OR_GREATER
         /// <summary>
         /// Set the <see cref="Content"/> of this element.
         /// </summary>
@@ -138,6 +169,23 @@ namespace CsharpTags.Core.Types
         /// <returns>The element with appended content</returns>
         public Tag Append(params ReadOnlySpan<IHtml> content)
             => this with { Content = Content.Concat(Seq(content)) };
+#else
+        /// <summary>
+        /// Set the <see cref="Content"/> of this element.
+        /// </summary>
+        /// <param name="content">The html content</param>
+        /// <returns>The element with a new content</returns>
+        public Tag New(params IHtml[] content)
+            => this with { Content = Seq(content.AsEnumerable()) };
+
+        /// <summary>
+        /// Append content to this element.
+        /// </summary>
+        /// <param name="content">Content to append</param>
+        /// <returns>The element with appended content</returns>
+        public Tag Append(params IHtml[] content)
+            => this with { Content = Content.Concat(Seq(content.AsEnumerable())) };
+#endif
 
         /// <inheritdoc/>
         public override Seq<HtmlElement> Unwrap()

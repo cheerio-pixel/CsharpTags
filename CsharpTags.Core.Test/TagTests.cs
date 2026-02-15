@@ -137,4 +137,218 @@ public class TagTests
         // Assert
         Assert.Equal("<ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>", result);
     }
+
+    [Fact]
+    public void Tag_New_WithMultipleParams_ShouldWork()
+    {
+        // Arrange & Act
+        var div = Div.New(
+            Class << "container",
+            P.New("Paragraph 1"),
+            P.New("Paragraph 2"),
+            Id_ << "main"
+        );
+
+        var result = div.Render();
+
+        // Assert
+        Assert.Contains("class=\"container\"", result);
+        Assert.Contains("id=\"main\"", result);
+        Assert.Contains("<p>Paragraph 1</p>", result);
+        Assert.Contains("<p>Paragraph 2</p>", result);
+    }
+
+    [Fact]
+    public void Tag_Append_WithMultipleParams_ShouldWork()
+    {
+        // Arrange
+        var div = Div.New(P.New("Initial"));
+
+        // Act
+        var updated = div.Append(
+            P.New("Appended 1"),
+            P.New("Appended 2"),
+            Class << "appended-class"
+        );
+
+        var result = updated.Render();
+
+        // Assert
+        Assert.Contains("<p>Initial</p>", result);
+        Assert.Contains("<p>Appended 1</p>", result);
+        Assert.Contains("<p>Appended 2</p>", result);
+        Assert.Contains("class=\"appended-class\"", result);
+    }
+
+    [Fact]
+    public void Tag_Attr_WithMultipleParams_ShouldWork()
+    {
+        // Arrange
+        var div = Div;
+
+        // Act
+#pragma warning disable CS0618
+        var withAttrs = div.Attr(
+            Class << "container",
+            Id_ << "main",
+            StyleAttr << "color: red;"
+        );
+#pragma warning restore CS0618
+
+        var result = withAttrs.Render();
+
+        // Assert
+        Assert.Contains("class=\"container\"", result);
+        Assert.Contains("id=\"main\"", result);
+        Assert.Contains("style=\"color: red;\"", result);
+    }
+
+    [Fact]
+    public void Tag_Child_WithMultipleParams_ShouldWork()
+    {
+        // Arrange
+        var div = Div;
+
+        // Act
+#pragma warning disable CS0618
+        var withChildren = div.Child(
+            H1.New("Title"),
+            P.New("Paragraph 1"),
+            P.New("Paragraph 2")
+        );
+#pragma warning restore CS0618
+
+        var result = withChildren.Render();
+
+        // Assert
+        Assert.Contains("<h1>Title</h1>", result);
+        Assert.Contains("<p>Paragraph 1</p>", result);
+        Assert.Contains("<p>Paragraph 2</p>", result);
+    }
+
+    [Fact]
+    public void Tag_AppendAttr_WithMultipleParams_ShouldWork()
+    {
+        // Arrange
+        var div = Div.New(Class << "initial");
+
+        // Act
+#pragma warning disable CS0618
+        var withMoreAttrs = div.AppendAttr(
+            Id_ << "main",
+            StyleAttr << "color: blue;"
+        );
+#pragma warning restore CS0618
+
+        var result = withMoreAttrs.Render();
+
+        // Assert
+        Assert.Contains("class=\"initial\"", result);
+        Assert.Contains("id=\"main\"", result);
+        Assert.Contains("style=\"color: blue;\"", result);
+    }
+
+    [Fact]
+    public void Tag_AppendChild_WithMultipleParams_ShouldWork()
+    {
+        // Arrange
+        var div = Div.New(H1.New("Title"));
+
+        // Act
+#pragma warning disable CS0618
+        var withMoreChildren = div.AppendChild(
+            P.New("First"),
+            P.New("Second"),
+            P.New("Third")
+        );
+#pragma warning restore CS0618
+
+        var result = withMoreChildren.Render();
+
+        // Assert
+        Assert.Contains("<h1>Title</h1>", result);
+        Assert.Contains("<p>First</p>", result);
+        Assert.Contains("<p>Second</p>", result);
+        Assert.Contains("<p>Third</p>", result);
+    }
+
+    [Fact]
+    public void Tag_ComplexNestedStructure_ShouldRenderCorrectly()
+    {
+        // Arrange
+        var html = Html.New(
+            Head.New(
+                Title.New("Test Page"),
+                Meta.New(Charset << "UTF-8"),
+                Link.New(Rel << "stylesheet", Href << "style.css")
+            ),
+            Body.New(
+                Header.New(
+                    Nav.New(
+                        A.New(Href << "/", "Home"),
+                        A.New(Href << "/about", "About"),
+                        A.New(Href << "/contact", "Contact")
+                    )
+                ),
+                Main.New(
+                    Section.New(
+                        H1.New("Welcome"),
+                        Article.New(
+                            H2.New("Article Title"),
+                            P.New("Article content here...")
+                        )
+                    )
+                ),
+                Footer.New(
+                    P.New("Copyright 2025")
+                )
+            )
+        );
+
+        // Act
+        var result = html.Render();
+
+        // Assert
+        Assert.Contains("<html>", result);
+        Assert.Contains("<head>", result);
+        Assert.Contains("<title>Test Page</title>", result);
+        Assert.Contains("<body>", result);
+        Assert.Contains("<header>", result);
+        Assert.Contains("<nav>", result);
+        Assert.Contains("<a href=\"/\">Home</a>", result);
+        Assert.Contains("<main>", result);
+        Assert.Contains("<section>", result);
+        Assert.Contains("<article>", result);
+        Assert.Contains("<footer>", result);
+    }
+
+    [Fact]
+    public void Tag_MixedAttributesAndChildren_ShouldSeparateCorrectly()
+    {
+        // Arrange
+        var div = Div.New(
+            // Attributes
+            Class << "mixed-test",
+            Id_ << "mixed-id",
+            // Children
+            H1.New("Header"),
+            P.New("Paragraph"),
+            // More attributes
+            StyleAttr << "margin: 10px;",
+            // More children
+            Span.New("Span content")
+        );
+
+        // Act
+        var result = div.Render();
+
+        // Assert
+        // Check all attributes are in opening tag
+        Assert.Contains("<div class=\"mixed-test\" id=\"mixed-id\" style=\"margin: 10px;\">", result);
+        // Check children are in correct order
+        Assert.Contains("<h1>Header</h1>", result);
+        Assert.Contains("<p>Paragraph</p>", result);
+        Assert.Contains("<span>Span content</span>", result);
+        Assert.Contains("</div>", result);
+    }
 }

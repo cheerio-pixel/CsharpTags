@@ -1,6 +1,12 @@
 # CsharpTags.Core
 
+[![CI](https://github.com/cheerio-pixel/CsharpTags/actions/workflows/ci.yml/badge.svg)](https://github.com/cheerio-pixel/CsharpTags/actions/workflows/ci.yml)
+[![Publish](https://github.com/cheerio-pixel/CsharpTags/actions/workflows/publish.yml/badge.svg)](https://github.com/cheerio-pixel/CsharpTags/actions/workflows/publish.yml)
+[![NuGet](https://img.shields.io/nuget/v/CsharpTags.Core.svg)](https://www.nuget.org/packages/CsharpTags.Core/)
+
 A type-safe HTML generation library for C# that provides a fluent, functional approach to building HTML documents with compile-time safety.
+
+**Targets:** .NET 8.0 and .NET 10.0
 
 ## Features
 
