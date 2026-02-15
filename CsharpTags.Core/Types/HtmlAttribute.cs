@@ -313,25 +313,14 @@ namespace CsharpTags.Core.Types
                     Func<A, string?> left,
                     Func<B, string?> right)
         {
-            var leftKey = new HtmlKey<A>()
-            {
-                Name = key,
-                Encode = left
-            };
-            var rightKey = new HtmlKey<B>()
-            {
-                Name = key,
-                Encode = right
-            };
-
             return new()
             {
                 Name = key,
                 Encode = value =>
                 {
                     return value.Match(
-                            Left: a => leftKey.Bind(a).Render(),
-                            Right: b => rightKey.Bind(b).Render()
+                            Left: a => left(a),
+                            Right: b => right(b)
                             );
                 }
             };
