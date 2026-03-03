@@ -6,7 +6,7 @@ namespace CsharpTags.Core.Types
     /// <summary>
     /// if-elseif-else syntax for HtmlElements
     /// </summary>
-    public record HtmlConditionalRenderingBuilder : HtmlElement
+    public record HtmlConditionalRenderingBuilder : HtmlElement, IWrapHtmlElement
     {
         /// <summary>
         /// The current element of the conditional rendering builder.
@@ -35,9 +35,9 @@ namespace CsharpTags.Core.Types
         }
 
         /// <inheritdoc/>
-        public override Seq<HtmlElement> Unwrap()
+        public HtmlElement Simplify()
         {
-            return Element.Unwrap();
+            return Element;
         }
     }
 

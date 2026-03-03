@@ -57,22 +57,49 @@ namespace CsharpTags.Core.Types
         {
             var elements = Seq<HtmlElement>();
             var attributes = Seq<HtmlAttribute>();
-            foreach (var element in content ?? Content)
+            var queue = new Queue<IHtml>(content ?? Content);
+
+            while (queue.Count > 0)
             {
-                if (element is HtmlElement htmlElement)
+                var element = queue.Dequeue();
+
+                if (element is IWrapListHtmlElement htmlElementList)
                 {
-                    elements += htmlElement.Unwrap();
+                    foreach (var item in htmlElementList.Unwrap())
+                    {
+                        queue.Enqueue(item);
+                    }
+                }
+                else if (element is IWrapHtmlElement wrappedHtmlElement)
+                {
+                    var unwrapped = wrappedHtmlElement.Simplify();
+                    while (unwrapped is IWrapHtmlElement nested)
+                    {
+                        unwrapped = nested.Simplify();
+                    }
+                    queue.Enqueue(unwrapped);
+                }
+                else if (element is HtmlElement htmlElement2)
+                {
+                    elements = elements.Add(htmlElement2);
+                }
+                else if (element is IWrapListHtmlAttribute listAttr)
+                {
+                    foreach (var attr in listAttr.Unwrap())
+                    {
+                        queue.Enqueue(attr);
+                    }
                 }
                 else if (element is HtmlAttribute attr)
                 {
-                    attributes += attr.Unwrap();
+                    attributes = attributes.Add(attr);
                 }
                 else if (element is HtmlList list)
                 {
-                    // It is not that deep bro
-                    var (eles, attrs) = CalculateSplit(list.Value);
-                    elements += eles;
-                    attributes += attrs;
+                    foreach (var item in list.Value)
+                    {
+                        queue.Enqueue(item);
+                    }
                 }
                 else
                 {
@@ -186,12 +213,6 @@ namespace CsharpTags.Core.Types
         public Tag Append(params IHtml[] content)
             => this with { Content = Content.Concat(Seq(content.AsEnumerable())) };
 #endif
-
-        /// <inheritdoc/>
-        public override Seq<HtmlElement> Unwrap()
-        {
-            return [this];
-        }
 
         /// <summary>
         /// Convert this Tag with attributes and children to a well formed html element

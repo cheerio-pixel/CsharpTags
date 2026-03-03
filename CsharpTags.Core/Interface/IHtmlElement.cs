@@ -9,10 +9,6 @@ namespace CsharpTags.Core.Interface
     public abstract record HtmlElement : IHtml
     {
         /// <summary>
-        /// Unwrap this possoible wrap over a Tag or other simple html element
-        /// </summary>
-        public abstract Seq<HtmlElement> Unwrap();
-        /// <summary>
         /// Convert this Virtual DOM element into its string representation.
         /// </summary>
         public abstract string Render();
@@ -216,5 +212,29 @@ namespace CsharpTags.Core.Interface
             {
                 Value = Seq(v.Cast<HtmlElement>())
             };
+    }
+
+    /// <summary>
+    /// This object wraps a list of html elements
+    /// </summary>
+    public interface IWrapListHtmlElement
+    {
+        /// <summary>
+        /// Unwrap this possoible wrap over a Tag or other simple html element
+        /// </summary>
+        public abstract Seq<HtmlElement> Unwrap();
+
+    }
+
+    /// <summary>
+    /// This object wraps a list of html elements
+    /// </summary>
+    public interface IWrapHtmlElement
+    {
+        /// <summary>
+        /// Unwrap this possoible wrap over a Tag or other simple html element
+        /// </summary>
+        public abstract HtmlElement Simplify();
+
     }
 }

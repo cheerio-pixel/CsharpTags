@@ -18,11 +18,5 @@ namespace CsharpTags.Core.Types
         {
             return WebUtility.HtmlEncode(Value);
         }
-
-        /// <inheritdoc/>
-        public override Seq<HtmlElement> Unwrap()
-        {
-            return [this];
-        }
     }
 }

@@ -6,7 +6,7 @@ namespace CsharpTags.Core.Types
     /// <summary>
     /// Represents an HTML list element that aggregates multiple <see cref="HtmlElement"/> instances.
     /// </summary>
-    public record HtmlElementList : HtmlElement
+    public record HtmlElementList : HtmlElement, IWrapListHtmlElement
     {
         /// <summary>
         /// Gets or sets the collection of HTML elements that comprise the list.
@@ -23,7 +23,7 @@ namespace CsharpTags.Core.Types
         }
 
         /// <inheritdoc/>
-        public override Seq<HtmlElement> Unwrap()
+        public Seq<HtmlElement> Unwrap()
         {
             return Value;
         }
