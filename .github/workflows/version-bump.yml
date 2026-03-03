@@ -12,6 +12,7 @@ on:
           - patch
           - minor
           - major
+          - beta
       prerelease:
         description: 'Prerelease label (leave empty for stable release)'
         required: false
@@ -70,12 +71,24 @@ jobs:
           patch)
             PATCH=$((PATCH + 1))
             ;;
+          beta)
+            # Extract current beta number if exists
+            BETA_NUM=$(echo "$CURRENT_VERSION" | sed -E 's/.*-beta([0-9]+).*/\1/')
+            if [ "$BETA_NUM" = "$CURRENT_VERSION" ]; then
+              # No beta suffix found
+              BETA_NUM=0
+            fi
+            BETA_NUM=$((BETA_NUM + 1))
+            ;;
         esac
         
         NEW_VERSION="$MAJOR.$MINOR.$PATCH"
         
+        # Add prerelease suffix for beta
+        if [ "$VERSION_TYPE" = "beta" ]; then
+          NEW_VERSION="$NEW_VERSION-beta$BETA_NUM"
         # Add prerelease suffix if provided
-        if [ -n "$PRERELEASE" ]; then
+        elif [ -n "$PRERELEASE" ]; then
           NEW_VERSION="$NEW_VERSION-$PRERELEASE"
         fi
         
