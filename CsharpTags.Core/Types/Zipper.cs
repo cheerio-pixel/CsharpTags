@@ -158,7 +158,7 @@ namespace CsharpTags.Core.Types
         /// Some(zipper) with focus on parent if not at root, None otherwise.
         /// </returns>
         /// <remarks>
-        /// If the current location has been changed (IsChanged = true), 
+        /// If the current location has been changed (IsChanged = true),
         /// the parent node will be reconstructed with the modified children.
         /// </remarks>
         public Option<Zipper<Z, TBranch, TElement>> GoUp()
@@ -419,7 +419,7 @@ namespace CsharpTags.Core.Types
             var current = this;
             while (true)
             {
-                var up = GoUp();
+                var up = current.GoUp();
                 if (up.IsSome)
                 {
                     var upRight
@@ -435,10 +435,9 @@ namespace CsharpTags.Core.Types
                 }
                 else
                 {
-                    return new Zipper<Z, TBranch, TElement>(current)
-                    {
-                        IsEnd = true
-                    };
+                    return current with {
+                            IsEnd = true
+                        };
                 }
             }
         }
