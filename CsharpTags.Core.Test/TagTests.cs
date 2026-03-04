@@ -351,4 +351,158 @@ public class TagTests
         Assert.Contains("<span>Span content</span>", result);
         Assert.Contains("</div>", result);
     }
+
+    [Fact]
+    public void Tag_Children_ShouldMaintainExactOrder()
+    {
+        // Arrange
+        var div = Div.New(
+            Div.New(Id_ << "first"),
+            Div.New(Id_ << "second"),
+            Div.New(Id_ << "third"),
+            Div.New(Id_ << "fourth"),
+            Div.New(Id_ << "fifth")
+        );
+
+        // Act
+        var result = div.Render();
+
+        // Assert - verify exact order using substring positions
+        var firstPos = result.IndexOf("id=\"first\"");
+        var secondPos = result.IndexOf("id=\"second\"");
+        var thirdPos = result.IndexOf("id=\"third\"");
+        var fourthPos = result.IndexOf("id=\"fourth\"");
+        var fifthPos = result.IndexOf("id=\"fifth\"");
+
+        Assert.True(firstPos < secondPos, "First should come before second");
+        Assert.True(secondPos < thirdPos, "Second should come before third");
+        Assert.True(thirdPos < fourthPos, "Third should come before fourth");
+        Assert.True(fourthPos < fifthPos, "Fourth should come before fifth");
+    }
+
+    [Fact]
+    public void Tag_NestedDeeply_ShouldMaintainCorrectHierarchy()
+    {
+        // Arrange - 5 levels deep
+        var html = Html.New(
+            Body.New(
+                Div.New(Class << "level-1",
+                    Div.New(Class << "level-2",
+                        Div.New(Class << "level-3",
+                            Div.New(Class << "level-4",
+                                Div.New(Class << "level-5",
+                                    Span.New("Deep content")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+
+        // Act
+        var result = html.Render();
+
+        // Assert - verify nesting order
+        Assert.True(result.IndexOf("class=\"level-1\"") < result.IndexOf("class=\"level-2\""));
+        Assert.True(result.IndexOf("class=\"level-2\"") < result.IndexOf("class=\"level-3\""));
+        Assert.True(result.IndexOf("class=\"level-3\"") < result.IndexOf("class=\"level-4\""));
+        Assert.True(result.IndexOf("class=\"level-4\"") < result.IndexOf("class=\"level-5\""));
+        Assert.Contains("Deep content", result);
+    }
+
+    [Fact]
+    public void Tag_MultipleSiblingGroups_ShouldRenderInOrder()
+    {
+        // Arrange - multiple sibling groups at different nesting levels
+        var div = Div.New(
+            Section.New(
+                H1.New("Section Header"),
+                P.New("First paragraph"),
+                P.New("Second paragraph")
+            ),
+            Section.New(
+                H2.New("Another Section"),
+                Ul.New(
+                    Li.New("Item 1"),
+                    Li.New("Item 2"),
+                    Li.New("Item 3")
+                )
+            ),
+            Section.New(
+                P.New("Final section")
+            )
+        );
+
+        // Act
+        var result = div.Render();
+
+        // Assert - verify sections are in order
+        var section1Pos = result.IndexOf("<section>");
+        var section2Pos = result.IndexOf("<section>", section1Pos + 1);
+        var section3Pos = result.IndexOf("<section>", section2Pos + 1);
+
+        Assert.True(section1Pos >= 0, "First section should exist");
+        Assert.True(section2Pos > section1Pos, "Second section should come after first");
+        Assert.True(section3Pos > section2Pos, "Third section should come after second");
+
+        // Verify content within sections
+        Assert.Contains("Section Header", result);
+        Assert.Contains("First paragraph", result);
+        Assert.Contains("Another Section", result);
+        Assert.Contains("Item 1", result);
+        Assert.Contains("Item 2", result);
+        Assert.Contains("Item 3", result);
+        Assert.Contains("Final section", result);
+    }
+
+    [Fact]
+    public void Tag_MixedTextAndTags_ShouldRenderInCorrectOrder()
+    {
+        // Arrange - interleaved text and tags
+        var div = Div.New(
+            P.New("Start text"),
+            "Middle text",
+            Span.New("In span"),
+            "End text"
+        );
+
+        // Act
+        var result = div.Render();
+
+        // Assert - verify exact order
+        var pPos = result.IndexOf("<p>");
+        var spanPos = result.IndexOf("<span>");
+        
+        Assert.True(pPos < spanPos, "P should come before span");
+        Assert.Contains("Start text", result);
+        Assert.Contains("Middle text", result);
+        Assert.Contains("In span", result);
+        Assert.Contains("End text", result);
+    }
+
+    [Fact]
+    public void Tag_WideTree_ShouldRenderAllSiblings()
+    {
+        // Arrange - tree with many siblings at same level
+        var items = Enumerable.Range(1, 20).Select(i => Li.New($"Item {i}"));
+        var ul = Ul.New(items.ToHtml());
+
+        // Act
+        var result = ul.Render();
+
+        // Assert - all items present in order
+        for (int i = 1; i <= 20; i++)
+        {
+            Assert.Contains($"Item {i}", result);
+        }
+        
+        // Verify order
+        for (int i = 1; i < 20; i++)
+        {
+            var currentPos = result.IndexOf($"Item {i}");
+            var nextPos = result.IndexOf($"Item {i + 1}");
+            Assert.True(currentPos < nextPos, $"Item {i} should come before Item {i + 1}");
+        }
+    }
 }
