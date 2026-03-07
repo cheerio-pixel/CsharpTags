@@ -148,53 +148,205 @@ var list2 = Ul.New(elements.ToHtml());
 
 ### Components
 
-Reusable, composable HTML elements. Components are abstract records that extend `Component` and define a `TagName`. The content passed to the constructor becomes the content of the rendered Tag:
-
 ```csharp
-// Define a custom component
-public record MyCard : Component
+// Card component with header, body, and footer layout
+public record Card : Component
 {
-    protected override string TagName => "div";
-    
-    // Required but unused - Component uses constructor content, not Build()
-    protected override IHtml Build() => Prelude.None_;
-}
+    protected override string TagName => "Card";
 
-// Use the component - pass content to constructor
-var card = new MyCard(Class << "card", "Card content");
-var html = Div.New(card);
-// Renders: <div><div class="card">Card content</div></div>
-```
+    private readonly HtmlElement _header;
+    private readonly HtmlElement _body;
 
-Components can define factory methods for cleaner APIs:
+    public Card(HtmlElement header, HtmlElement body, params ReadOnlySpan<HtmlAttribute> attributes)
+        : base(attributes)
+    {
+        _header = header;
+        _body = body;
+    }
 
-```csharp
-public record Alert : Component
-{
-    protected override string TagName => "div";
-    protected override IHtml Build() => Prelude.None_;
-
-    // Factory method for creating styled alerts
-    public static Tag Info(string message) 
-        => new Alert(Class << "alert alert-info", message).Simplify();
-    
-    public static Tag Error(string message) 
-        => new Alert(Class << "alert alert-danger", message).Simplify();
+    protected override IHtml Build()
+    {
+        // Use Children and Attributes to build structured layout
+        return HList(
+            // First child is always the header
+            _header,
+            // Rest are wrapped in card-body
+            Div.New(Class << "card-body", _body),
+            // Attributes applied to outer div (handled automatically)
+            Attributes
+        );
+    }
 }
 
 // Usage
-var infoAlert = Alert.Info("Operation successful!");
-var errorAlert = Alert.Error("Something went wrong!");
+var card = new Card(
+    H3.New("Card Title"),           // Header (first child)
+    P.New("Card content here"),     // Body content
+    Button.New("Action")           // More body content
+);
 ```
 
-Components implement `IWrapHtmlElement` and are automatically simplified when rendered:
+Components can accept models via custom constructors or initializers:
 
 ```csharp
-// Component is simplified to a Tag when used as content
-var page = Body.New(
-    new HeaderComponent(),           // Simplified to <header>...</header>
-    new SidebarComponent(),          // Simplified to <aside>...</aside>
-    new MainContentComponent(articles)  // Simplified to <main>...</main>
+// Component with model data
+public record UserCard : Component
+{
+    public User User { get; init; }  // Extra data via initializer
+    
+    protected override string TagName => "UserCard";
+    
+    protected override IHtml Build()
+    {
+        // Mix base structure with passed-in children
+        return Div.New(
+            Class << "user-card",
+            // User data from initializer
+            Img.New(Src << User.AvatarUrl, Class << "avatar"),
+            H4.New(User.Name),
+            // Children from constructor
+            Children
+        );
+    }
+}
+
+// Usage with model
+var userCard = new UserCard(
+    P.New("Last login: yesterday")    // Additional content
+) { User = currentUser };
+
+// Or with custom constructor for required data
+public record ArticlePreview : Component
+{
+    private readonly Article _article;
+    
+    // Custom constructor for required model
+    public ArticlePreview(Article article, params IHtml[] content) : base(content)
+    {
+        _article = article;
+    }
+    
+    protected override string TagName => "ArticlePreview";
+    
+    protected override IHtml Build()
+    {
+        return Article.New(
+            Class << "article-preview",
+            Attributes,           // Pass through any attrs from constructor
+            H2.New(_article.Title),
+            P.New(_article.Summary),
+            // Children from constructor appended
+            Children
+        );
+    }
+}
+
+// Usage
+var preview = new ArticlePreview(
+    article: myArticle,
+    Class << "featured",        // Attributes
+    Button.New("Read more")     // Children
+);
+```
+
+Better APIs with custom constructors for specific slots:
+
+```csharp
+// Layout component with named sidebar and main content slots
+public record TwoColumnLayout : Component
+{
+    private readonly HtmlElement _sidebar;
+    private readonly HtmlElement _main;
+    
+    // Custom constructor with named parameters instead of generic children
+    public TwoColumnLayout(HtmlElement sidebar, HtmlElement main, params HtmlAttribute[] attrs)
+        : base(attrs)
+    {
+        _sidebar = sidebar;
+        _main = main;
+    }
+    
+    protected override string TagName => "TwoColumnLayout";
+    
+    protected override IHtml Build()
+    {
+        // Use the specific slots instead of Children
+        return Div.New(
+            Class << "layout",
+            Attributes,           // Any attrs passed
+            Aside.New(Class << "sidebar", _sidebar),
+            Main.New(Class << "content", _main)
+        );
+    }
+}
+
+// Usage - clear, discoverable API
+var page = new TwoColumnLayout(
+    sidebar: Nav.New(
+        Ul.New(
+            Li.New(A.New(Href << "/", "Home")),
+            Li.New(A.New(Href << "/about", "About"))
+        )
+    ),
+    main: Div.New(
+        H1.New("Page Title"),
+        P.New("Main content here...")
+    ),
+    Class << "with-sidebar"    // Additional attributes
+);
+```
+
+Another example - Modal component with specific slots:
+
+```csharp
+public record Modal : Component
+{
+    private readonly HtmlElement _header;
+    private readonly HtmlElement _body;
+    private readonly HtmlElement _footer;
+    
+    public Modal(
+        HtmlElement header, 
+        HtmlElement body, 
+        HtmlElement footer,
+        params HtmlAttribute[] attrs)
+        : base(attrs)
+    {
+        _header = header;
+        _body = body;
+        _footer = footer;
+    }
+    
+    protected override string TagName => "Modal";
+    
+    protected override IHtml Build()
+    {
+        return Div.New(
+            Class << "modal",
+            Role << "dialog",
+            Attributes,
+            Div.New(
+                Class << "modal-dialog",
+                Div.New(
+                    Class << "modal-content",
+                    Div.New(Class << "modal-header", _header),
+                    Div.New(Class << "modal-body", _body),
+                    Div.New(Class << "modal-footer", _footer)
+                )
+            )
+        );
+    }
+}
+
+// Clean, type-safe usage
+var modal = new Modal(
+    header: H4.New("Confirm Action"),
+    body: P.New("Are you sure you want to delete this item?"),
+    footer: HList(
+        Button.New("Cancel"),
+        Button.New(Class << "btn-danger", "Delete")
+    ),
+    Id_ << "delete-modal"
 );
 ```
 

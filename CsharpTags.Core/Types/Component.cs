@@ -21,7 +21,11 @@ public abstract record Component
     public Component(params IHtml[] content)
 #endif
     {
+#if NET10_0_OR_GREATER
         Content = Seq(content);
+#else
+        Content = Seq<IHtml>(content);
+#endif
     }
 
     /// <summary>
@@ -47,8 +51,7 @@ public abstract record Component
     public HtmlElement Simplify() => new Tag()
     {
         TagName = TagName,
-        Content = Content,
+        Content = Seq(Build()),
         IsVoid = false,
     };
 }
-
