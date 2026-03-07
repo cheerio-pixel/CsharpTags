@@ -51,63 +51,7 @@ namespace CsharpTags.Core.Types
         /// <summary>
         /// Get the split of children and attributes
         /// </summary>
-        public (Seq<HtmlElement>, Seq<HtmlAttribute>) Split => _split ??= CalculateSplit();
-
-        private (Seq<HtmlElement>, Seq<HtmlAttribute>) CalculateSplit(Seq<IHtml>? content = null)
-        {
-            var elements = Seq<HtmlElement>();
-            var attributes = Seq<HtmlAttribute>();
-            var queue = new Queue<IHtml>(content ?? Content);
-
-            while (queue.Count > 0)
-            {
-                var element = queue.Dequeue();
-
-                if (element is IWrapListHtmlElement htmlElementList)
-                {
-                    foreach (var item in htmlElementList.Unwrap())
-                    {
-                        queue.Enqueue(item);
-                    }
-                }
-                else if (element is IWrapHtmlElement wrappedHtmlElement)
-                {
-                    var unwrapped = wrappedHtmlElement.Simplify();
-                    while (unwrapped is IWrapHtmlElement nested)
-                    {
-                        unwrapped = nested.Simplify();
-                    }
-                    queue.Enqueue(unwrapped);
-                }
-                else if (element is HtmlElement htmlElement2)
-                {
-                    elements = elements.Add(htmlElement2);
-                }
-                else if (element is IWrapListHtmlAttribute listAttr)
-                {
-                    foreach (var attr in listAttr.Unwrap())
-                    {
-                        queue.Enqueue(attr);
-                    }
-                }
-                else if (element is HtmlAttribute attr)
-                {
-                    attributes = attributes.Add(attr);
-                }
-                else if (element is HtmlList list)
-                {
-                    foreach (var item in list.Value)
-                    {
-                        queue.Enqueue(item);
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException(element.GetType().FullName);
-                }
-            }
-            return (elements, attributes);
-        }
+        public (Seq<HtmlElement>, Seq<HtmlAttribute>) Split => _split ??= Splitter.CalculateSplit(Content);
 
 #if NET10_0_OR_GREATER
         /// <summary>
@@ -167,17 +111,15 @@ namespace CsharpTags.Core.Types
             => Append(children);
 #endif
 
-        private Seq<IHtml> _content;
-
         /// <summary>
         /// Collection of Attributes and Child elements
         /// </summary>
         public Seq<IHtml> Content {
-            get { return _content; }
+            get;
             init {
                 // Invalid cache when new content is set
                 _split = null;
-                _content = value;
+                field = value;
         } }
 
 #if NET10_0_OR_GREATER
