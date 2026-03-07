@@ -24,7 +24,7 @@ A type-safe HTML generation library for C# that provides a fluent, functional ap
 ## Installation
 
 ```xml
-<PackageReference Include="CsharpTags.Core" Version="1.0.0-beta-4" />
+<PackageReference Include="CsharpTags.Core" Version="1.1.0-beta-4" />
 ```
 
 ## Quick Start

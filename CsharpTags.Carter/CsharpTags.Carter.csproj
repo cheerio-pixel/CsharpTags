@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>CsharpTags.Carter</PackageId>
-    <Version>1.1.0-beta1</Version>
+    <Version>1.1.0-beta4</Version>
     <Authors>Frairlyn Camilo Roque Suarez</Authors>
     <Description>Seamless integration between CsharpTags and Carter for ASP.NET Core Minimal APIs</Description>
     <PackageTags>csharp-tags;carter;html;minimal-apis;aspnetcore</PackageTags>
