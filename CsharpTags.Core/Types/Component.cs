@@ -1,14 +1,11 @@
 using CsharpTags.Core.Interface;
-using LanguageExt;
-
-using static CsharpTags.Core.Types.Prelude;
 
 namespace CsharpTags.Core.Types;
 
 public abstract record Component
     : IHtml, IWrapHtmlElement
 {
-    protected abstract HtmlElement Build();
+    protected abstract IHtml Build();
 
     protected abstract string TagName { get; }
 
@@ -17,6 +14,15 @@ public abstract record Component
     public Seq<HtmlElement> Children => Split.Item1;
 
     private (Seq<HtmlElement>, Seq<HtmlAttribute>)? _split;
+
+#if NET10_0_OR_GREATER
+    public Component(params ReadOnlySpan<IHtml> content)
+#else
+    public Component(params IHtml[] content)
+#endif
+    {
+        Content = Seq(content);
+    }
 
     /// <summary>
     /// Get the split of children and attributes
@@ -37,25 +43,12 @@ public abstract record Component
         }
     }
 
-    public HtmlElement Simplify() => Build();
-
-#if NET10_0_OR_GREATER
-    public Tag New(params ReadOnlySpan<IHtml> content)
-#else
-    public HtmlElement New(params IHtml[] content)
-#endif
+    /// <inheritdoc/>
+    public HtmlElement Simplify() => new Tag()
     {
-        HtmlElement? result = content.Length == 0
-            ? Build()
-            : (this with {
-                Content = Seq<IHtml>(content)
-            }).Build();
-        return new Tag()
-        {
-            TagName = TagName,
-            Content = Seq<IHtml>(result),
-            IsVoid = false,
-        };
-    }
+        TagName = TagName,
+        Content = Content,
+        IsVoid = false,
+    };
 }
 
